@@ -1,3 +1,10 @@
+=======
+eecs494.p3
+==========
+
+Joshua Kahn EECS 494 Project 3 (3D Game)
+========================================
+
 #The Zenipex Library (zenilib) 0.5.3.0
 
 ##Contents

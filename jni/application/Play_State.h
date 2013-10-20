@@ -2,33 +2,31 @@
 
 using namespace Zeni;
 
+#include "Player.h"
+
 class Play_State : public Gamestate_Base {
 private:
-	Camera m_camera;
+	Player m_player;
 	Zeni::Time m_current_time;
-	Chronometer<Time> m_chrono;
-	float m_time_passed;
-	float m_max_time_step;  //< Optional
-	float m_max_time_steps; //< Optional
+
+	Zeni::Time_HQ time_passed;
 
 	Play_State(const Play_State &);
 	Play_State operator=(const Play_State &);
 
 	struct Controls {
-		Controls() : left(false), right(false), up(false), down(false),
-			roll_left(false), roll_right(false), pitch(0.0f), yaw(0.0f) {}
+		Controls() : forward(false), left(false), back(false), right(false),
+			roll_left(false), roll_right(false) {}
 
+		bool forward;
 		bool left;
+		bool back;
 		bool right;
-		bool up;
-		bool down;
 		bool roll_left;
 		bool roll_right;
-
-		float pitch;
-		float yaw;
 	} m_controls; //end struct Controls
 
+	bool m_moved;
 
 public:
 	Play_State();
@@ -46,6 +44,8 @@ public:
 	void render();
 
 private:
+	void partial_step(const float &time_step, const Vector3f &velocity);
+
 	void move_camera(const float &time_step);
 
 	void render_plane(const Point3f &top_left, const Point3f &bottom_right, const Color &c);

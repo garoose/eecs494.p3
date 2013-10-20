@@ -11,12 +11,20 @@ class Player : public Ship {
 	Vector3f m_camera_offset;
 
 public:
-	Player(const Point3f &pos_, const Vector3f &size_, const String &model_file_, 
-			const Vector3f &camera_offset_ = Vector3f(0.0f, 0.0f, 0.0f), const float &speed_ = 100.0f )
-		: Ship(pos_, size_, model_file_, speed_),
-		m_camera_offset(camera_offset_),
-		m_camera(get_position() + m_camera_offset)
-		//m_model(model_file_)
-	{
-	}
+	Player(const Camera &camera_, const Vector3f &size_,
+	const Vector3f &camera_offset_ = Vector3f(0.0f, 0.0f, 0.0f), const float &speed_ = 100.0f);
+
+	// Level 1
+	const Zeni::Camera & get_camera() const { return m_camera; }
+
+	// Level 2
+	void set_position(const Zeni::Point3f &position);
+
+	void adjust_pitch(const float &phi);
+	void adjust_roll(const float &rho);
+	void turn_left_xy(const float &theta);
+
+	// Level 3
+	void step(const float &time_step);
+	void render();
 };

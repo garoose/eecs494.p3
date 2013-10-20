@@ -67,8 +67,8 @@ void Play_State::perform_logic() {
 	time_passed = current_time;
 
 	/** Get forward and left vectors in the XY-plane **/
-	const Vector3f forward = m_player.get_camera().get_forward().get_ij().normalized();
-	const Vector3f left = m_player.get_camera().get_left().get_ij().normalized();
+	const Vector3f forward = m_player.get_camera().get_forward().normalized();
+	const Vector3f left = m_player.get_camera().get_left().normalized();
 
 	/** Get velocity vector split into a number of axes **/
 	const Vector3f velocity = (m_controls.forward - m_controls.back) * 50.0f * forward

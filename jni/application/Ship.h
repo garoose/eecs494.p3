@@ -52,5 +52,5 @@ public:
 	virtual void render();
 
 private:
-	void render_side(const Point3f &top_left, const Point3f &bottom_right);
+	void render_side(const Point3f &point, const Vector3f &normal);
 };

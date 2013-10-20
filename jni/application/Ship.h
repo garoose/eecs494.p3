@@ -18,14 +18,16 @@ class Ship {
 
 	// Level 3
 	Collision::Parallelepiped m_body; // collision
+	float m_max_speed;
+	float m_acceleration;
 	Vector3f m_velocity;
-	bool m_is_on_ground;
 
 	// Level 4
 	// Controls are external to Player
 
 public:
-	Ship(const Point3f &m_position_, const Zeni::Vector3f &m_size_);
+	Ship(const Point3f &m_position_, const Zeni::Vector3f &m_size_,
+		const float &m_max_speed_, const float &m_acceleration_);
 
 	// Level 1
 	const Point3f &get_position() const { return m_position;  }
@@ -33,24 +35,28 @@ public:
 	Vector3f Ship::get_forward() const;
 	Vector3f Ship::get_up() const;
 
+	const float &get_acceleration() const { return m_acceleration; }
+	const float &get_max_speed() const { return m_max_speed; }
+
 	// Level 2
 	void set_position(const Zeni::Point3f &position);
 
 	void adjust_pitch(const float &phi);
 	void adjust_roll(const float &rho);
+	void adjust_yaw(const float &theta);
 	void turn_left_xy(const float &theta);
 
 	// Level 3
 	const Zeni::Collision::Parallelepiped & get_body() const { return m_body; }
-	bool is_on_ground() const { return m_is_on_ground; }
 
 	const Zeni::Vector3f & get_velocity() const { return m_velocity; }
 	void set_velocity(const Zeni::Vector3f &velocity_) { m_velocity = velocity_; }
+	void add_velocity(const Zeni::Vector3f &velocity_) { m_velocity += velocity_; }
 
 	void step(const float &time_step);
 
 	virtual void render();
 
 private:
-	void render_side(const Point3f &point, const Vector3f &normal);
+	void render_side(const Point3f &point, const Vector3f &a, const Vector3f &, const Vector3f &c, Color &col);
 };

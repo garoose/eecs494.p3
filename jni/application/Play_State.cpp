@@ -1,10 +1,15 @@
 #include "Play_State.h"
+#include "Wall.h"
 
 Play_State::Play_State()
 	: m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f),
-		Vector3f(100.0f, 100.0f, 100.0f), Vector3f(-20.0f, 0.0f, 0.0f))
+		Vector3f(20.0f, 20.0f, 20.0f), Vector3f(-20.0f, 0.0f, 0.0f)),
+		m_wall1(Point3f(100.0f, 100.0f, -10.0f), Vector3f(-100.0f, 0.0f, 0.0f), Vector3f(0.0f, -100.0f, 0.0f), Vector3f(0.0f, 0.0f, 50.0f), get_Colors()["purple"]),
+		m_wall2(Point3f(100.0f, 100.0f, -10.0f), Point3f(-100.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), get_Colors()["green"])
 {
 	set_pausable(true);
+
+	m_light.position = m_player.get_position();
 }
 
 void Play_State::on_push() {
@@ -21,7 +26,7 @@ void Play_State::on_cover() {
 
 void Play_State::on_mouse_motion(const SDL_MouseMotionEvent &event) {
 	m_player.adjust_pitch(event.yrel / 500.0f);
-	m_player.turn_left_xy(-event.xrel / 500.0f);
+	m_player.adjust_yaw(-event.xrel / 500.0f);
 }
 
 void Play_State::on_key(const SDL_KeyboardEvent &event) {
@@ -71,8 +76,22 @@ void Play_State::perform_logic() {
 	const Vector3f left = m_player.get_camera().get_left().normalized();
 
 	/** Get velocity vector split into a number of axes **/
-	const Vector3f velocity = (m_controls.forward - m_controls.back) * 50.0f * forward
-		+ (m_controls.left - m_controls.right) * 50.0f * left;
+	const float &accel = m_player.get_acceleration();
+
+	Vector3f forward_velocity = (m_controls.forward - m_controls.back) * accel * forward;
+	Vector3f side_velocity = (m_controls.left - m_controls.right) * accel * left;
+	Vector3f velocity = forward_velocity + side_velocity;
+
+	/** Don't go over max speed **/
+	float result_speed = (velocity + m_player.get_velocity()).magnitude2();
+	while (result_speed > m_player.get_max_speed()) {
+		velocity += velocity * -0.01f;
+		result_speed = (velocity + m_player.get_velocity()).magnitude2();
+	}
+
+	/** Air resistance **/
+	velocity += m_player.get_velocity() * -0.01f;
+
 	const Vector3f x_vel = velocity.get_i();
 	const Vector3f y_vel = velocity.get_j();
 	const Vector3f z_vel = velocity.get_k();
@@ -97,11 +116,11 @@ void Play_State::perform_logic() {
 		partial_step(time_step, x_vel);
 		partial_step(time_step, y_vel);
 		partial_step(time_step, z_vel);
+		m_player.adjust_roll((m_controls.roll_right - m_controls.roll_left) * time_step);
 	}
-}
 
-void Play_State::move_camera(const float &time_step) {
-	m_player.adjust_roll((m_controls.roll_right - m_controls.roll_left) * time_step);
+	/** Reposition headlight **/
+	m_light.position = m_player.get_position();
 }
 
 void Play_State::render_plane(const Point3f &top_left, const Point3f &bottom_right, const Color &c) {
@@ -119,16 +138,29 @@ void Play_State::render_plane(const Point3f &top_left, const Point3f &bottom_rig
 
 void Play_State::render() {
 	Video &vr = get_Video();
+	
+	// set player camera as view point
 	vr.set_3d(m_player.get_camera());
 
-	render_plane(Point3f(100.0f, 100.0f, -10.0f), Point3f(-100.0f, -100.0f, -10.0f), get_Colors()["purple"]);
-	render_plane(Point3f(100.0f, 100.0f, -10.0f), Point3f(-100.0f, 100.0f, 100.0f), get_Colors()["green"]);
+	// Lighting
+	//vr.set_lighting(true);
+	vr.set_ambient_lighting(Color(1.0f, 0.1f, 0.1f, 0.1f));
+	vr.set_Light(0, m_light);
+
+	//render_plane(Point3f(100.0f, 100.0f, -10.0f), Point3f(-100.0f, -100.0f, -10.0f), get_Colors()["purple"]);
+	//render_plane(Point3f(100.0f, 100.0f, -10.0f), Point3f(-100.0f, 100.0f, 100.0f), get_Colors()["green"]);
+
+	//m_wall1.render();
+	//m_wall2.render();
 
 	m_player.render();
+
+	// Restore normal lighting
+	vr.set_lighting(false);
 }
 
 void Play_State::partial_step(const float &time_step, const Vector3f &velocity) {
-	m_player.set_velocity(velocity);
+	m_player.add_velocity(velocity);
 	const Point3f backup_position = m_player.get_camera().position;
 
 	m_player.step(time_step);

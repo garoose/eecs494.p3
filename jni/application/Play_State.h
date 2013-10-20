@@ -1,13 +1,18 @@
+#pragma once
+
 #include <zenilib.h>
+#include "Player.h"
+#include "Wall.h"
 
 using namespace Zeni;
-
-#include "Player.h"
 
 class Play_State : public Gamestate_Base {
 private:
 	Player m_player;
-	Zeni::Time m_current_time;
+	Wall m_wall1;
+	Wall m_wall2;
+
+	Light m_light;
 
 	Zeni::Time_HQ time_passed;
 
@@ -45,8 +50,6 @@ public:
 
 private:
 	void partial_step(const float &time_step, const Vector3f &velocity);
-
-	void move_camera(const float &time_step);
 
 	void render_plane(const Point3f &top_left, const Point3f &bottom_right, const Color &c);
 };

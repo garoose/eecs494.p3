@@ -2,7 +2,7 @@
 #include "Wall.h"
 
 Play_State::Play_State()
-	: m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(-20.0f, 0.0f, 0.0f)),
+	: m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(5.0f, 5.0f, 3.0f)),
 	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(5.0f, 60.0f, -60.0f))
 {
 	set_pausable(true);

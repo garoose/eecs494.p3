@@ -118,7 +118,7 @@ void Ship::render() {
 	m_model->set_scale(m_size);
 	m_model->set_rotate(rotation.second, rotation.first);
 
-	m_model->render();
+	//m_model->render();
 }
 
 Model * Ship::m_model = nullptr;

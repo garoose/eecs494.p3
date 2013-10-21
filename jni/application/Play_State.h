@@ -38,6 +38,30 @@ private:
 		float boost;
 	} m_controls; //end struct Controls
 
+	struct Bump {
+		float steps;
+		bool m_vibrate;
+
+		Bump() : steps(0.0f), m_vibrate(false) {}
+
+		void bump() {
+			steps = 0.0f;
+			m_vibrate = true;
+		}
+
+		void vibrate() {
+			if (m_vibrate) {
+				steps++;
+				get_Controllers().set_vibration(0, 0.7f, 0.7f);
+			}
+
+			if (m_vibrate && steps > 8.0f) {
+				get_Controllers().set_vibration(0, 0.0f, 0.0f);
+				m_vibrate = false;
+			}
+		}
+	} m_bump;
+
 	bool m_moved;
 
 public:

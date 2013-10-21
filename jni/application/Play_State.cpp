@@ -217,6 +217,8 @@ void Play_State::render_plane(const Point3f &top_left, const Point3f &bottom_rig
 
 void Play_State::render() {
 	Video &vr = get_Video();
+
+	m_bump.vibrate();
 	
 	// set player camera as view point
 	vr.set_3d(m_player.get_camera());
@@ -274,6 +276,7 @@ void Play_State::partial_step(const float &time_step, const Vector3f &velocity) 
 		{
 			/** Play a sound if possible **/
 			colliding->collide();
+			m_bump.bump();
 			m_moved = false;
 		}
 

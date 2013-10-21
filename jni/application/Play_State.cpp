@@ -2,7 +2,8 @@
 #include "Wall.h"
 
 Play_State::Play_State()
-	: m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(-20.0f, 0.0f, 0.0f))
+	: m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(-20.0f, 0.0f, 0.0f)),
+	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(5.0f, 60.0f, -60.0f))
 {
 	set_pausable(true);
 
@@ -12,14 +13,15 @@ Play_State::Play_State()
 
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), 1);
 	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), 1);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTX /* x-axis */), 2);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTY /* y-axis */), 3);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTX /* x-rotation */), 4);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTY /* y-rotation */), 5);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERLEFT /* z-axis */), 6);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERRIGHT /* z-axis */), 7);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_LEFTSHOULDER), 8);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER), 9);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTX /* left-right */), 2);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTY /* forward-backward */), 3);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTX /* yaw */), 4);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTY /* pitch */), 5);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERLEFT /*  */), 6);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERRIGHT /*  */), 7);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_LEFTSHOULDER /* rotate left */), 8);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER /* rotate right */), 9);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START /* reset */), 10);
 }
 
 void Play_State::on_push() {
@@ -71,16 +73,26 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 		break;
 
 	case 7: // right trigger
+		//super boost
+		m_controls.boost = confidence * 10.0f;
 		//vibration.y = confidence;
 		//get_Controllers().set_vibration(0, vibration.x, vibration.y);
 		break;
 
 	case 8: // left bumper
-		m_controls.roll_left = confidence;
+		m_controls.roll_left = confidence == 1.0f ? true : false;
 		break;
 
 	case 9: // right bumper
-		m_controls.roll_right = confidence;
+		m_controls.roll_right = confidence == 1.0f ? true : false;
+		break;
+
+	case 10: // start
+		if (confidence == 1.0f)  {
+			m_player.reset();
+			m_time.reset();
+			m_finish.reset();
+		}
 		break;
 
 	case 0:
@@ -180,9 +192,10 @@ void Play_State::perform_logic() {
 		partial_step(time_step, x_vel);
 		partial_step(time_step, y_vel);
 		partial_step(time_step, z_vel);
-		m_player.adjust_roll((m_controls.roll_right - m_controls.roll_left) * time_step);
+
 		m_player.adjust_pitch(m_controls.joy_y / 40.0f);
 		m_player.adjust_yaw(m_controls.joy_x / 40.0f);
+		m_player.adjust_roll((m_controls.roll_right - m_controls.roll_left) * time_step);
 	}
 
 	/** Reposition headlight **/
@@ -217,7 +230,7 @@ void Play_State::render() {
 	//render_plane(Point3f(100.0f, 100.0f, -10.0f), Point3f(-100.0f, 100.0f, 100.0f), get_Colors()["green"]);
 
 	m_map.render();
-
+	m_finish.render();
 	m_player.render();
 
 	// Restore normal lighting
@@ -226,10 +239,26 @@ void Play_State::render() {
 	// Render HUD
 	Point2f window_size(get_Window().get_size());
 	Point2f window_center(window_size.x / 2.0f, window_size.y / 2.0f);
-	Vector2f crosshair_size(64.0f, 64.0f);
 	vr.set_2d(std::pair<Point2f, Point2f>(Point2f(), window_size));
+	vr.clear_depth_buffer();
 
-	render_image("crosshair", window_center - crosshair_size, window_center + crosshair_size);
+		//render lap time
+		m_time.render();
+
+		// render crosshairs
+		Vector2f crosshair_size(64.0f, 64.0f);
+		render_image("crosshair", window_center - crosshair_size, window_center + crosshair_size);
+
+		// render win message if finished
+		if (m_finish.crossed()) {
+			Font &fr = get_Fonts()["title"];
+			String msg = "You win";
+			fr.render_text(
+				msg,
+				Point2f(get_Window().get_size().x / 2 - fr.get_text_width(msg), 100.0f - 0.5f * fr.get_text_height()),
+				get_Colors()["title_text"],
+				ZENI_CENTER);
+		}
 }
 
 void Play_State::partial_step(const float &time_step, const Vector3f &velocity) {
@@ -238,7 +267,7 @@ void Play_State::partial_step(const float &time_step, const Vector3f &velocity) 
 
 	m_player.step(time_step);
 
-	/** If collision with the crate has occurred, roll things back **/
+	/** If collision with the map has occurred, roll things back **/
 	Map_Object *colliding;
 	if (colliding = m_map.intersects(m_player)) {
 		if (m_moved)
@@ -249,6 +278,18 @@ void Play_State::partial_step(const float &time_step, const Vector3f &velocity) 
 		}
 
 		m_player.set_position(backup_position);
+		// figure out bounce vector
 		m_player.set_velocity(m_player.get_velocity() * -0.8f);
+	}
+
+	bool was_crossed = m_finish.crossed();
+
+	if (m_finish.intersects(m_player)) {
+		if (!was_crossed)
+		{
+			/** Play a sound if possible **/
+			m_finish.collide();
+		}
+		m_time.pause();
 	}
 }

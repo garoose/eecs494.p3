@@ -1,6 +1,7 @@
 #include "Map.h"
 #include "Wall.h"
 #include "Ship.h"
+#include "Finish_Line.h"
 
 using std::vector;
 
@@ -13,7 +14,17 @@ Map::Map() {
 		list.push_back(new Wall(Point3f(560.0f, -48.0f, -25.0f), Vector3f(5.0f, 260.0f, 60.0f))); //left side
 		list.push_back(new Wall(Point3f(560.0f, 12.0f, -25.0f), Vector3f(-60.0f, 200.0f, 5.0f))); //bottom
 		list.push_back(new Wall(Point3f(500.0f, 12.0f, -25.0f), Vector3f(5.0f, 200.0f, 60.0f))); //right side
-		list.push_back(new Wall(Point3f(560.0f, 12.0f, 35.0f), Vector3f(-60.0f, 200.0f, 5.0f))); //top
+		list.push_back(new Wall(Point3f(560.0f, 12.0f, 35.0f), Vector3f(-60.0f, 260.0f, 5.0f))); //top
+
+		list.push_back(new Wall(Point3f(560.0f, 212.0f, 35.0f), Vector3f(5.0f, 120.0f, -400.0f))); //left side
+		list.push_back(new Wall(Point3f(560.0f, 212.0f, -25.0f), Vector3f(-60.0f, 5.0f, -400.0f))); //bottom
+		list.push_back(new Wall(Point3f(500.0f, 212.0f, 35.0f), Vector3f(5.0f, 120.0f, -400.0f))); //right side
+		list.push_back(new Wall(Point3f(560.0f, 272.0f, 35.0f), Vector3f(-60.0f, 5.0f, -400.0f), Quaternion(0.0f, 0.0f, 0.13f))); //top
+
+		list.push_back(new Wall(Point3f(560.0f, 212.0f, -365.0f), Vector3f(5.0f, 520.0f, -60.0f))); //left side
+		list.push_back(new Wall(Point3f(560.0f, 212.0f, -425.0f), Vector3f(-60.0f, 520.0f, 5.0f))); //bottom
+		list.push_back(new Wall(Point3f(500.0f, 212.0f, -365.0f), Vector3f(5.0f, 520.0f, -60.0f))); //right side
+		list.push_back(new Wall(Point3f(560.0f, 332.0f, -365.0f), Vector3f(-60.0f, 460.0f, 5.0f))); //top
 }
 
 Map::~Map() {

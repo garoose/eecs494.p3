@@ -7,6 +7,8 @@ using namespace Zeni;
 class Ship {
 	void create_body();
 
+	Point3f m_reset_pos;
+
 	// Level 1/2
 	Point3f m_position;
 	Quaternion m_orientation;
@@ -44,6 +46,7 @@ public:
 
 	// Level 2
 	void set_position(const Zeni::Point3f &position);
+	virtual void reset();
 
 	void adjust_pitch(const float &phi);
 	void adjust_roll(const float &rho);

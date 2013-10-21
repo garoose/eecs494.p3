@@ -1,19 +1,21 @@
 #pragma once
 
 #include <zenilib.h>
+
 #include "Map_Object.h"
 
 using namespace Zeni;
 
-class Wall : public Map_Object {
+class Finish_Line : public Map_Object {
+	bool m_crossed;
 
 public:
-	Wall(const Zeni::Point3f &corner_ = Zeni::Point3f(0.0f, 0.0f, 0.0f),
+	Finish_Line(const Zeni::Point3f &corner_ = Zeni::Point3f(0.0f, 0.0f, 0.0f),
 		const Zeni::Vector3f &scale_ = Zeni::Vector3f(1.0f, 1.0f, 1.0f),
 		const Zeni::Quaternion &rotation_ = Zeni::Quaternion::Axis_Angle(Zeni::Vector3f(0.0f, 0.0f, 1.0f), 0.0f));
-	Wall(const Wall &rhs);
-	Wall & operator=(const Wall &rhs);
-	~Wall();
+	~Finish_Line();
+
+	void reset();
 
 	void render() const override;
 	bool intersects(const Ship &s) const override;
@@ -21,6 +23,8 @@ public:
 	const Vector3f &get_surface() const override;
 
 	const Zeni::Collision::Parallelepiped & get_body() const { return m_body; }
+
+	bool crossed() const { return m_crossed; }
 
 private:
 	void create_body();

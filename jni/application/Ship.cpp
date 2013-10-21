@@ -12,7 +12,8 @@ Ship::Ship(const Point3f &m_position_, const Vector3f &m_size_,
 	: m_position(m_position_),
 	m_size(m_size_),
 	m_max_speed(m_max_speed_),
-	m_acceleration(m_acceleration_)
+	m_acceleration(m_acceleration_),
+	m_reset_pos(m_position)
 {
 	if (!m_instance_count)
 		m_model = new Model("models/crate.3ds");
@@ -40,6 +41,12 @@ Vector3f Ship::get_up() const {
 void Ship::set_position(const Point3f &position) {
 	m_position = position;
 	create_body();
+}
+
+void Ship::reset() {
+	m_position = m_reset_pos;
+	m_orientation = Quaternion();
+	m_velocity = Vector3f();
 }
 
 void Ship::adjust_pitch(const float &phi) {

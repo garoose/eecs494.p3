@@ -58,13 +58,17 @@ void Wall::render() const {
 	m_model->render();
 }
 
+bool Wall::intersects(const Ship &s) const {
+	return m_body.intersects(s.get_body());
+}
+
 void Wall::collide() {
 	if (!m_source->is_playing())
 		m_source->play();
 }
 
-bool Wall::intersects(const Ship &s) const {
-	return m_body.intersects(s.get_body());
+const Vector3f &Wall::get_surface() const {
+	return m_rotation * m_scale;
 }
 
 void Wall::create_body() {

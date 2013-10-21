@@ -4,6 +4,8 @@
 #include "Player.h"
 #include "Wall.h"
 #include "Map.h"
+#include "Lap_Time.h"
+#include "Finish_Line.h"
 
 using namespace Zeni;
 
@@ -11,6 +13,8 @@ class Play_State : public Gamestate_II {
 private:
 	Player m_player;
 	Map m_map;
+	Lap_Time m_time;
+	Finish_Line m_finish;
 
 	Light m_light;
 
@@ -21,7 +25,7 @@ private:
 
 	struct Controls {
 		Controls() : forward(0.0f), left(0.0f), back(0.0f), right(0.0f),
-			joy_x(0.0f), joy_y(0.0f), roll_left(false), roll_right(false) {}
+			joy_x(0.0f), joy_y(0.0f), roll_left(false), roll_right(false), boost(0.0f) {}
 
 		float forward;
 		float left;
@@ -31,6 +35,7 @@ private:
 		float joy_y;
 		bool roll_left;
 		bool roll_right;
+		float boost;
 	} m_controls; //end struct Controls
 
 	bool m_moved;

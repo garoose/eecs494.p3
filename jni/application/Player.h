@@ -13,8 +13,7 @@ class Player : public Ship {
 
 public:
 	Player(const Camera &camera_, const Vector3f &size_,
-	const Vector3f &camera_offset_ = Vector3f(0.0f, 0.0f, 0.0f),
-	const float &max_speed_ = 150.0f, const float &acceleration_ = 0.4f);
+	const float &max_speed_ = 550.0f, const float &acceleration_ = 0.6f);
 
 	// Level 1
 	const Zeni::Camera & get_camera() const { return m_camera; }

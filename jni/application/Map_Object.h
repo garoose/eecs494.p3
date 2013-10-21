@@ -12,5 +12,7 @@ public:
 	Map_Object() {}
 
 	virtual void render() const = 0;
-	virtual bool is_intersecting(const Ship &s) const = 0;
+	virtual bool intersects(const Ship &s) const = 0;
+
+	virtual void collide() {}
 };

@@ -3,14 +3,14 @@
 #include <zenilib.h>
 #include "Player.h"
 #include "Wall.h"
+#include "Map.h"
 
 using namespace Zeni;
 
-class Play_State : public Gamestate_Base {
+class Play_State : public Gamestate_II {
 private:
 	Player m_player;
-	Wall m_wall1;
-	Wall m_wall2;
+	Map m_map;
 
 	Light m_light;
 
@@ -20,13 +20,15 @@ private:
 	Play_State operator=(const Play_State &);
 
 	struct Controls {
-		Controls() : forward(false), left(false), back(false), right(false),
-			roll_left(false), roll_right(false) {}
+		Controls() : forward(0.0f), left(0.0f), back(0.0f), right(0.0f),
+			joy_x(0.0f), joy_y(0.0f), roll_left(false), roll_right(false) {}
 
-		bool forward;
-		bool left;
-		bool back;
-		bool right;
+		float forward;
+		float left;
+		float back;
+		float right;
+		float joy_x;
+		float joy_y;
 		bool roll_left;
 		bool roll_right;
 	} m_controls; //end struct Controls
@@ -40,9 +42,9 @@ public:
 	void on_pop();
 	void on_cover();
 
+	void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action);
 	void on_mouse_motion(const SDL_MouseMotionEvent &event);
 	void on_key(const SDL_KeyboardEvent &event);
-	void on_controller_button(const SDL_ControllerButtonEvent &event);
 
 	void perform_logic();
 

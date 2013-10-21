@@ -14,7 +14,6 @@ class Ship {
 	// Level 2
 	Vector3f m_size;
 	float m_radius;
-	//Model m_model;
 
 	// Level 3
 	Collision::Parallelepiped m_body; // collision
@@ -29,7 +28,12 @@ public:
 	Ship(const Point3f &m_position_, const Zeni::Vector3f &m_size_,
 		const float &m_max_speed_, const float &m_acceleration_);
 
+	~Ship();
+
 	// Level 1
+	static Model *m_model;
+	static unsigned long m_instance_count;
+
 	const Point3f &get_position() const { return m_position;  }
 	const Vector3f &get_size() { return m_size; }
 	Vector3f Ship::get_forward() const;

@@ -57,8 +57,8 @@
         <Full_Screen>0</Full_Screen>
         <Multisampling>0</Multisampling>
         <Resolution>
-            <Width>640</Width>
-            <Height>480</Height>
+            <Width>1680</Width>
+            <Height>1028</Height>
         </Resolution>
         <Vertical_Sync>1</Vertical_Sync>
     </Video>

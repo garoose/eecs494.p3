@@ -146,6 +146,11 @@ void Play_State::reset() {
 	m_time.reset();
 	m_finish.reset();
 	prev_ship_velocity = Vector3f();
+	for (auto it = lasers.begin(); it != lasers.end();) {
+		auto laser = (*it);
+		lasers.erase(it);
+		delete laser;
+	}
 }
 
 void Play_State::perform_logic() {

@@ -13,7 +13,7 @@ public:
 
 	void reset();
 	void pause();
-	void unpase();
+	void unpause();
 	void lap();
 
 	void render() const;

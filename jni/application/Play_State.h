@@ -1,11 +1,14 @@
 #pragma once
 
 #include <zenilib.h>
+#include <vector>
+
 #include "Player.h"
 #include "Wall.h"
 #include "Map.h"
 #include "Lap_Time.h"
 #include "Finish_Line.h"
+#include "Laser.h"
 
 using namespace Zeni;
 
@@ -18,6 +21,10 @@ private:
 
 	Light m_light;
 
+	Vector3f prev_ship_velocity;
+
+	std::vector<Laser *> lasers;
+
 	Zeni::Time_HQ time_passed;
 
 	Play_State(const Play_State &);
@@ -25,7 +32,7 @@ private:
 
 	struct Controls {
 		Controls() : forward(0.0f), left(0.0f), back(0.0f), right(0.0f),
-			joy_x(0.0f), joy_y(0.0f), roll_left(false), roll_right(false), boost(0.0f) {}
+			joy_x(0.0f), joy_y(0.0f), roll_left(false), roll_right(false), shoot(false), boost(0.0f) {}
 
 		float forward;
 		float left;
@@ -35,6 +42,7 @@ private:
 		float joy_y;
 		bool roll_left;
 		bool roll_right;
+		bool shoot;
 		float boost;
 	} m_controls; //end struct Controls
 
@@ -76,12 +84,17 @@ public:
 	void on_mouse_motion(const SDL_MouseMotionEvent &event);
 	void on_key(const SDL_KeyboardEvent &event);
 
+	void reset();
+
 	void perform_logic();
 
 	void render();
 
 private:
-	void partial_step(const float &time_step, const Vector3f &velocity);
+	void partial_ship_step(const float &time_step, const Vector3f &velocity);
+	void partial_laser_step(const float &time_step, const Vector3f &velocity);
 
 	void render_plane(const Point3f &top_left, const Point3f &bottom_right, const Color &c);
+
+	bool check_collisions();
 };

@@ -5,6 +5,9 @@
 
 using namespace Zeni;
 
+class Ship;
+class Laser;
+
 class Wall : public Map_Object {
 
 public:
@@ -16,9 +19,9 @@ public:
 	~Wall();
 
 	void render() const override;
-	bool intersects(const Ship &s) const override;
+	bool intersects(const Collision::Parallelepiped &p) const override;
+	bool intersects(const Collision::Capsule &c) const override;
 	void collide() override;
-	const Vector3f &get_surface() const override;
 
 	const Zeni::Collision::Parallelepiped & get_body() const { return m_body; }
 

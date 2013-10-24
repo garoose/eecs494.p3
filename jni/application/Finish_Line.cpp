@@ -61,8 +61,8 @@ void Finish_Line::render() const {
 	m_model->render();*/
 }
 
-bool Finish_Line::intersects(const Ship &s) const {
-	return m_body.intersects(s.get_body());
+bool Finish_Line::intersects(const Collision::Parallelepiped &p) const {
+	return m_body.intersects(p);
 }
 
 void Finish_Line::collide() {
@@ -70,10 +70,6 @@ void Finish_Line::collide() {
 		m_source->play();
 
 	m_crossed = true;
-}
-
-const Vector3f &Finish_Line::get_surface() const {
-	return m_rotation * m_scale;
 }
 
 void Finish_Line::create_body() {

@@ -18,9 +18,8 @@ public:
 	void reset();
 
 	void render() const override;
-	bool intersects(const Ship &s) const override;
+	bool intersects(const Collision::Parallelepiped &p) const override;
 	void collide() override;
-	const Vector3f &get_surface() const override;
 
 	const Zeni::Collision::Parallelepiped & get_body() const { return m_body; }
 

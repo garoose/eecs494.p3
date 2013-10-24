@@ -34,4 +34,19 @@ HOWTO:  To convert between types, or to downmix to mono,
   <party_horn>
     <filepath>sfx/party-horn</filepath>
   </party_horn>
+  <laser>
+    <filepath>sfx/laser</filepath>
+  </laser>
+  <retro_laser>
+    <filepath>sfx/retro_laser</filepath>
+  </retro_laser>
+  <explode>
+    <filepath>sfx/explode</filepath>
+  </explode>
+  <laser_strike>
+    <filepath>sfx/laser_strike2</filepath>
+  </laser_strike>
+  <laser_recharge>
+    <filepath>sfx/laser_recharge</filepath>
+  </laser_recharge>
 </Sounds>

@@ -43,9 +43,18 @@ void Map::render() const {
 	}
 }
 
-Map_Object *Map::intersects(const Ship &s) const {
+Map_Object *Map::intersects(const Collision::Parallelepiped &p) const {
 	for (auto it = list.begin(); it != list.end(); ++it) {
-		if ((*it)->intersects(s))
+		if ((*it)->intersects(p))
+			return (*it);
+	}
+
+	return nullptr;
+}
+
+Map_Object *Map::intersects(const Collision::Capsule &c) const {
+	for (auto it = list.begin(); it != list.end(); ++it) {
+		if ((*it)->intersects(c))
 			return (*it);
 	}
 

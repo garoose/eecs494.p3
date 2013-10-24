@@ -1,5 +1,6 @@
 #include "Wall.h"
 #include "Ship.h"
+#include "Laser.h"
 
 using namespace Zeni::Collision;
 
@@ -58,17 +59,17 @@ void Wall::render() const {
 	m_model->render();
 }
 
-bool Wall::intersects(const Ship &s) const {
-	return m_body.intersects(s.get_body());
+bool Wall::intersects(const Parallelepiped &p) const {
+	return m_body.intersects(p);
+}
+
+bool Wall::intersects(const Capsule &c) const {
+	return m_body.intersects(c);
 }
 
 void Wall::collide() {
 	if (!m_source->is_playing())
 		m_source->play();
-}
-
-const Vector3f &Wall::get_surface() const {
-	return m_rotation * m_scale;
 }
 
 void Wall::create_body() {

@@ -8,8 +8,6 @@
 
 using namespace Zeni;
 
-class Ship;
-
 class Map {
 
 public:
@@ -19,5 +17,6 @@ public:
 	~Map();
 
 	void render() const;
-	Map_Object *intersects(const Ship &s) const;
+	Map_Object *intersects(const Collision::Parallelepiped &p) const;
+	Map_Object *intersects(const Collision::Capsule &c) const;
 };

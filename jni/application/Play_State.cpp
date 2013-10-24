@@ -4,10 +4,12 @@
 Play_State::Play_State()
 	: m_moved(false),
 	m_noclip(false),
-	m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(5.0f, 5.0f, 3.0f)),
+	m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(2.0f, 8.0f, 1.5f)),
 	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(-60.0f, -5.0f, -60.0f))
 {
 	set_pausable(true);
+
+	prev_ship_velocity = Vector3f();
 
 	m_light.position = m_player.get_position();
 
@@ -52,10 +54,8 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 		break;
 
 	case 2: // left joy x
-		if (confidence < 0)
-			m_controls.right = confidence;
-		else
-			m_controls.left = -confidence;
+		m_controls.right = m_controls.left = 0.0f;
+		m_controls.right = confidence;
 		break;
 
 	case 3: // lefy joy y
@@ -71,15 +71,11 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 		break;
 
 	case 6: // left trigger
-		//vibration.x = confidence;
-		//get_Controllers().set_vibration(0, vibration.x, vibration.y);
 		break;
 
 	case 7: // right trigger
-		//super boost
-		m_controls.boost = confidence * 10.0f;
-		//vibration.y = confidence;
-		//get_Controllers().set_vibration(0, vibration.x, vibration.y);
+		//shoot a laser
+		m_controls.shoot = confidence > 0.5f ? true : false;
 		break;
 
 	case 8: // left bumper
@@ -92,9 +88,7 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 
 	case 10: // start
 		if (confidence == 1.0f)  {
-			m_player.reset();
-			m_time.reset();
-			m_finish.reset();
+			reset();
 		}
 		break;
 	case 11: // noclip
@@ -103,8 +97,6 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 		break;
 
 	case 0:
-		//if (confidence == 1.0f)
-		//
 		break;
 
 	default:
@@ -149,32 +141,59 @@ void Play_State::on_key(const SDL_KeyboardEvent &event) {
 	}
 }
 
+void Play_State::reset() {
+	m_player.reset();
+	m_time.reset();
+	m_finish.reset();
+	prev_ship_velocity = Vector3f();
+}
+
 void Play_State::perform_logic() {
 	const Time_HQ current_time = get_Timer_HQ().get_time();
 	float processing_time = float(current_time.get_seconds_since(time_passed));
 	time_passed = current_time;
 
+	/** Check if player already exploded **/
+	if (m_player.is_exploded()) {
+		Chronometer<Time> delay;
+		delay.start();
+		while (delay.seconds() < 1.5f) {}
+		reset();
+	}
+
+	/** Shoot Lasers **/
+	if (m_controls.shoot) {
+		Laser *l = m_player.fire_laser();
+		if (l) {
+			lasers.push_back(m_player.fire_laser());
+			m_bump.bump();
+		}
+	}
+
 	/** Get forward and left vectors in the XYZ-plane **/
 	const Vector3f forward = m_player.get_camera().get_forward().normalized();
 	const Vector3f left = m_player.get_camera().get_left().normalized();
 
-	/** Get velocity vector split into a number of axes **/
+	/** Find change in acceleration **/
 	const float &accel = m_player.get_acceleration();
+	Vector3f forward_accel = (m_controls.forward - m_controls.back) * accel * forward;
+	Vector3f side_accel = (m_controls.left - m_controls.right) * accel * left;
 
-	Vector3f forward_velocity = (m_controls.forward - m_controls.back) * accel * forward;
-	Vector3f side_velocity = (m_controls.left - m_controls.right) * accel * left;
-	Vector3f velocity = forward_velocity + side_velocity;
+	Vector3f velocity = prev_ship_velocity + forward_accel + side_accel;
 
 	/** Don't go over max speed **/
-	float result_speed = (velocity + m_player.get_velocity()).magnitude2();
+	float result_speed = (m_player.get_velocity() + velocity).magnitude2();
 	while (result_speed > m_player.get_max_speed()) {
 		velocity += velocity * -0.01f;
-		result_speed = (velocity + m_player.get_velocity()).magnitude2();
+		result_speed = (m_player.get_velocity() + velocity).magnitude2();
 	}
 
 	/** Air resistance **/
-	velocity += m_player.get_velocity() * -0.01f;
+	velocity += prev_ship_velocity * -0.01f;
 
+	prev_ship_velocity = Vector3f();
+
+	/** Get velocity vector split into a number of axes **/
 	const Vector3f x_vel = velocity.get_i();
 	const Vector3f y_vel = velocity.get_j();
 	const Vector3f z_vel = velocity.get_k();
@@ -196,13 +215,31 @@ void Play_State::perform_logic() {
 			time_step = processing_time;
 
 		/** Try to move on each axis **/
-		partial_step(time_step, x_vel);
-		partial_step(time_step, y_vel);
-		partial_step(time_step, z_vel);
+		partial_ship_step(time_step, x_vel);
+		partial_ship_step(time_step, y_vel);
+		partial_ship_step(time_step, z_vel);
 
 		m_player.adjust_pitch(m_controls.joy_y / 40.0f);
 		m_player.adjust_yaw(m_controls.joy_x / 40.0f);
 		m_player.adjust_roll((m_controls.roll_right - m_controls.roll_left) * time_step);
+
+		//step lasers
+		for (auto it = lasers.begin(); it != lasers.end();) {
+			auto laser = (*it);
+			laser->step(time_step);
+
+			Map_Object *colliding;
+			if ((colliding = m_map.intersects(laser->get_body()))) {
+				laser->collide();
+			}
+
+			if (laser->can_destroy()) {
+				it = lasers.erase(it);
+				delete laser;
+			} else {
+				++it;
+			}
+		}
 	}
 
 	/** Reposition headlight **/
@@ -239,6 +276,11 @@ void Play_State::render() {
 	m_finish.render();
 	m_player.render();
 
+	//render lasers
+	for (auto it = lasers.begin(); it != lasers.end(); ++it) {
+		(*it)->render();
+	}
+
 	// Restore normal lighting
 	vr.set_lighting(false);
 
@@ -265,33 +307,50 @@ void Play_State::render() {
 				get_Colors()["title_text"],
 				ZENI_CENTER);
 		}
+
+		m_player.render_hp();
+
+		if (m_noclip) {
+			Font &fr = get_Fonts()["title"];
+			String msg = "noclip";
+			fr.render_text(
+				msg,
+				Point2f(get_Window().get_size().x / 2, 100.0f - 0.5f * fr.get_text_height()),
+				get_Colors()["title_text"],
+				ZENI_CENTER);
+		}
 }
 
-void Play_State::partial_step(const float &time_step, const Vector3f &velocity) {
-	m_player.add_velocity(velocity);
+void Play_State::partial_ship_step(const float &time_step, const Vector3f &velocity) {
 	const Point3f backup_position = m_player.get_position();
 
+	//m_player.step(time_step, velocity);
+	m_player.set_velocity(velocity);
 	m_player.step(time_step);
 
 	/** If collision with the map has occurred, roll things back **/
 	Map_Object *colliding;
-	if (!m_noclip && (colliding = m_map.intersects(m_player))) {
+	if (!m_noclip && (colliding = m_map.intersects(m_player.get_body()))) {
 		if (m_moved)
 		{
 			/** Play a sound if possible **/
-			colliding->collide();
+			m_player.collide();
+			//colliding->collide();
 			m_bump.bump();
 			m_moved = false;
 		}
 
 		m_player.set_position(backup_position);
 		// figure out bounce vector
-		m_player.set_velocity(m_player.get_velocity() * -0.8f);
+		prev_ship_velocity += (velocity * -1.5f);
+	}
+	else {
+		prev_ship_velocity += velocity;
 	}
 
 	bool was_crossed = m_finish.crossed();
 
-	if (m_finish.intersects(m_player)) {
+	if (m_finish.intersects(m_player.get_body())) {
 		if (!was_crossed)
 		{
 			/** Play a sound if possible **/

@@ -2,25 +2,28 @@
 
 Player::Player(const Camera &camera_, const Vector3f &size_, const float &max_speed_, const float &acceleration_)
 	: m_camera(camera_),
-	Ship(m_camera.position - m_camera_offset, size_, max_speed_, acceleration_)
-	//m_model(model_file_)
+	m_camera_offset(3.0f),
+	Ship(m_camera.position, size_, max_speed_, acceleration_)
 {
-	m_camera_offset = Vector3f(get_size().x / 2, get_size().y / 2, get_size().z / 2);
-
 	m_camera.fov_rad = Zeni::Global::pi / 3.0f;
+}
+
+void Player::_set_position() {
+	Vector3f offset = -get_forward().normalize() + get_up().normalize();
+	m_camera.position = get_position() + (get_center()) + (offset * m_camera_offset);
 }
 
 // Level 2
 void Player::set_position(const Point3f &position) {
-	m_camera.position = position - m_camera_offset;
-
 	Ship::set_position(position);
+
+	_set_position();
 }
 
 void Player::reset() {
 	Ship::reset();
 
-	m_camera.position = get_position() + m_camera_offset;
+	set_position(get_position());
 	m_camera.orientation = Quaternion();
 
 }
@@ -53,7 +56,7 @@ void Player::turn_left_xy(const float &theta) {
 void Player::step(const float &time_step) {
 	Ship::step(time_step);
 
-	m_camera.position = get_position() + m_camera_offset;
+	_set_position();
 }
 
 void Player::render() {

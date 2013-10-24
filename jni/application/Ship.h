@@ -38,6 +38,8 @@ public:
 
 	const Point3f &get_position() const { return m_position;  }
 	const Vector3f &get_size() { return m_size; }
+	const Quaternion &get_orientation() { return m_orientation;  }
+	const Point3f get_center() { return m_orientation * (m_size / 2.0f); }
 	Vector3f Ship::get_forward() const;
 	Vector3f Ship::get_up() const;
 

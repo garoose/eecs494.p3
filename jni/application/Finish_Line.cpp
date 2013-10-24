@@ -39,10 +39,14 @@ void Finish_Line::render() const {
 
 	Video &vr = get_Video();
 
+	Vector3f dx = m_rotation * m_scale.get_i();
+	Vector3f dy = m_rotation * m_scale.get_j();
+	Vector3f dz = m_rotation * m_scale.get_k();
+
 	Vertex3f_Texture p0(Vector3f(m_corner), Point2f(0.0f, 0.0f));
-	Vertex3f_Texture p1(Vector3f(m_corner.x + m_scale.x, m_corner.y, m_corner.z), Point2f(0.0f, 1.0f));
-	Vertex3f_Texture p2(Vector3f(m_corner.x, m_corner.y, m_corner.z + m_scale.z), Point2f(1.0f, 1.0f));
-	Vertex3f_Texture p3(Vector3f(m_corner.x, m_corner.y + m_scale.y, m_corner.z), Point2f(1.0f, 0.0f));
+	Vertex3f_Texture p1(m_corner + dx, Point2f(0.0f, 1.0f));
+	Vertex3f_Texture p2(m_corner + dz, Point2f(1.0f, 1.0f));
+	Vertex3f_Texture p3(m_corner + dy, Point2f(1.0f, 0.0f));
 	Material material("finish_line");
 
 	Quadrilateral<Vertex3f_Texture> quad(p0, p1, p2, p3);

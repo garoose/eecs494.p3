@@ -2,8 +2,10 @@
 #include "Wall.h"
 
 Play_State::Play_State()
-	: m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(5.0f, 5.0f, 3.0f)),
-	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(5.0f, 60.0f, -60.0f))
+	: m_moved(false),
+	m_noclip(false),
+	m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(5.0f, 5.0f, 3.0f)),
+	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(-60.0f, -5.0f, -60.0f))
 {
 	set_pausable(true);
 
@@ -22,6 +24,7 @@ Play_State::Play_State()
 	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_LEFTSHOULDER /* rotate left */), 8);
 	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER /* rotate right */), 9);
 	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START /* reset */), 10);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_F1), 11 /* noclip */);
 }
 
 void Play_State::on_push() {
@@ -93,6 +96,10 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 			m_time.reset();
 			m_finish.reset();
 		}
+		break;
+	case 11: // noclip
+		if (confidence == 1.0f)
+			m_noclip = !m_noclip;
 		break;
 
 	case 0:
@@ -228,9 +235,6 @@ void Play_State::render() {
 	vr.set_ambient_lighting(Color(1.0f, 0.1f, 0.1f, 0.1f));
 	vr.set_Light(0, m_light);
 
-	//render_plane(Point3f(100.0f, 100.0f, -10.0f), Point3f(-100.0f, -100.0f, -10.0f), get_Colors()["purple"]);
-	//render_plane(Point3f(100.0f, 100.0f, -10.0f), Point3f(-100.0f, 100.0f, 100.0f), get_Colors()["green"]);
-
 	m_map.render();
 	m_finish.render();
 	m_player.render();
@@ -265,13 +269,13 @@ void Play_State::render() {
 
 void Play_State::partial_step(const float &time_step, const Vector3f &velocity) {
 	m_player.add_velocity(velocity);
-	const Point3f backup_position = m_player.get_camera().position;
+	const Point3f backup_position = m_player.get_position();
 
 	m_player.step(time_step);
 
 	/** If collision with the map has occurred, roll things back **/
 	Map_Object *colliding;
-	if (colliding = m_map.intersects(m_player)) {
+	if (!m_noclip && (colliding = m_map.intersects(m_player))) {
 		if (m_moved)
 		{
 			/** Play a sound if possible **/

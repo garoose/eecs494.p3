@@ -51,15 +51,15 @@ void Ship::reset() {
 
 void Ship::adjust_pitch(const float &phi) {
 	//FIXME don't know what I'm doing
-	m_orientation *= phi;
+	m_orientation *= Quaternion(0.0f, phi, 0.0f, 0.0f);
 }
 
 void Ship::adjust_roll(const float &rho) {
-	//m_orientation *= rho;
+	m_orientation *= Quaternion(0.0f, 0.0f, rho, 0.0f);
 }
 
 void Ship::adjust_yaw(const float &theta) {
-	//m_orientation *= theta;
+	m_orientation *= Quaternion(theta, 0.0f, 0.0f, 0.0f);
 }
 
 void Ship::turn_left_xy(const float &theta) {
@@ -83,42 +83,14 @@ void Ship::create_body() {
 	sr.set_listener_velocity(m_velocity);
 }
 
-void Ship::render_side(const Point3f &point, const Vector3f &a, const Vector3f &b, const Vector3f &c, Color &col) {
-	Video &vr = get_Video();
-
-	Vertex3f_Color p0(point, col);
-	Vertex3f_Color p1(point + a, col);
-	Vertex3f_Color p2(point + b, col);
-	Vertex3f_Color p3(point + c, col);
-
-	Quadrilateral<Vertex3f_Color> q(p0, p1, p2, p3);
-
-	vr.render(q);
-}
-
 void Ship::render() {
-	Point3f point = get_position();
-	Vector3f size = m_orientation * get_size();
-
-	Vector3f dx = size.get_i();
-	Vector3f dy = size.get_j();
-	Vector3f dz = size.get_k();
-
-	/*render_side(point, dx, dx + dy, dy, get_Colors()["red"]);
-	render_side(point, dy, dy + dz, dz, get_Colors()["blue"]);
-	render_side(point, dz, dx + dz, dx, get_Colors()["purple"]);
-
-	render_side(point + dx, dz, dy + dz, dy, get_Colors()["yellow"]);
-	render_side(point + dy, dz, dx + dz, dx, get_Colors()["magenta"]);
-	render_side(point + dz, dx, dx + dy, dy, get_Colors()["orange"]);*/
-
 	auto rotation = m_orientation.get_rotation();
 
 	m_model->set_translate(m_position);
 	m_model->set_scale(m_size);
 	m_model->set_rotate(rotation.second, rotation.first);
 
-	//m_model->render();
+	m_model->render();
 }
 
 Model * Ship::m_model = nullptr;

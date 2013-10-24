@@ -63,6 +63,7 @@ private:
 	} m_bump;
 
 	bool m_moved;
+	bool m_noclip;
 
 public:
 	Play_State();

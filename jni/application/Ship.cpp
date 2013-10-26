@@ -81,16 +81,10 @@ void Ship::step(const float &time_step, const Vector3f &velocity) {
 }
 
 void Ship::create_body() {
-	Sound &sr = get_Sound();
-
     m_body = Parallelepiped(m_position,
                             m_orientation * m_size.get_i(),
 							m_orientation * m_size.get_j(),
 							m_orientation * m_size.get_k());
-
-	sr.set_listener_position(m_position);
-	sr.set_listener_forward_and_up(get_forward(), get_up());
-	sr.set_listener_velocity(m_velocity);
 
 	m_source->set_position(m_position + m_orientation * m_size / 2.0f);
 }
@@ -124,7 +118,7 @@ void Ship::explode() {
 Laser *Ship::fire_laser() {
 	if (laser_cooldown.seconds() == 0.0f) {
 		Vector3f endpt = -get_forward().normalize() + Vector3f(10.0f, 2.0f, 2.0f);
-		Laser *l = new Laser(m_position, endpt, m_orientation);
+		Laser *l = new Laser(get_center(), endpt, m_orientation);
 		play_sound(laser_sfx);
 		laser_cooldown.start();
 

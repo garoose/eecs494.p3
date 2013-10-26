@@ -7,8 +7,6 @@
 using namespace Zeni;
 
 class Ship {
-	void create_body();
-
 	Point3f m_reset_pos;
 	Chronometer<Time> laser_cooldown;
 
@@ -32,6 +30,9 @@ class Ship {
 	// Level 4
 	// Controls are external to Ship
 
+protected:
+	virtual void create_body();
+
 public:
 	Ship(const Point3f &m_position_, const Zeni::Vector3f &m_size_,
 		const float &m_max_speed_, const float &m_acceleration_);
@@ -48,7 +49,7 @@ public:
 	const Point3f &get_position() const { return m_position;  }
 	const Vector3f &get_size() { return m_size; }
 	const Quaternion &get_orientation() { return m_orientation;  }
-	const Point3f get_center() { return m_orientation * (m_size / 2.0f); }
+	const Point3f get_center() { return m_position + m_orientation * (m_size / 2.0f); }
 	Vector3f get_forward() const;
 	Vector3f get_up() const;
 
@@ -80,7 +81,5 @@ public:
 	Laser *fire_laser();
 
 private:
-	void render_side(const Point3f &point, const Vector3f &a, const Vector3f &, const Vector3f &c, Color &col);
-
 	void play_sound(const String &s);
 };

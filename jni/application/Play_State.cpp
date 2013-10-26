@@ -187,10 +187,10 @@ void Play_State::perform_logic() {
 	Vector3f velocity = prev_ship_velocity + forward_accel + side_accel;
 
 	/** Don't go over max speed **/
-	float result_speed = (m_player.get_velocity() + velocity).magnitude2();
+	float result_speed = velocity.magnitude2();
 	while (result_speed > m_player.get_max_speed()) {
 		velocity += velocity * -0.01f;
-		result_speed = (m_player.get_velocity() + velocity).magnitude2();
+		result_speed = velocity.magnitude2();
 	}
 
 	/** Air resistance **/

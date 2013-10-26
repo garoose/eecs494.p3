@@ -13,6 +13,9 @@ class Player : public Ship {
 
 	void _set_position();
 
+protected:
+	void create_body() override;
+
 public:
 	Player(const Camera &camera_, const Vector3f &size_,
 	const float &max_speed_ = 7050.0f, const float &acceleration_ = 2.0f);

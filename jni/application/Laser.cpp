@@ -53,16 +53,10 @@ void Laser::step(const float &time_step) {
 }
 
 void Laser::create_body() {
-	Sound &sr = get_Sound();
-
 	m_body = Parallelepiped(m_position,
 		m_orientation * m_size.get_i(),
 		m_orientation * m_size.get_j(),
 		m_orientation * m_size.get_k());
-
-	sr.set_listener_position(m_position);
-	sr.set_listener_forward_and_up(get_forward(), get_up());
-	sr.set_listener_velocity(m_velocity);
 
 	m_source->set_position(m_position + m_orientation * m_size / 2.0f);
 }

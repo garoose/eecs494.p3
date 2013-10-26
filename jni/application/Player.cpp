@@ -10,7 +10,7 @@ Player::Player(const Camera &camera_, const Vector3f &size_, const float &max_sp
 
 void Player::_set_position() {
 	Vector3f offset = -get_forward().normalize() * m_camera_offset + get_up().normalize() * m_camera_offset / 3.0f;
-	m_camera.position = get_position() + (get_center()) + (offset);
+	m_camera.position = (get_center()) + (offset);
 }
 
 // Level 2
@@ -57,6 +57,16 @@ void Player::step(const float &time_step, const Vector3f &velocity) {
 	Ship::step(time_step, velocity);
 
 	_set_position();
+}
+
+void Player::create_body() {
+	Ship::create_body();
+
+	Sound &sr = get_Sound();
+
+	sr.set_listener_position(m_camera.position);
+	sr.set_listener_forward_and_up(m_camera.get_forward(), m_camera.get_up());
+	sr.set_listener_velocity(get_velocity());
 }
 
 void Player::render() {

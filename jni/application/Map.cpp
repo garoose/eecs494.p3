@@ -1,3 +1,11 @@
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+
+using std::string;
+using std::cout; using std::endl;
+
 #include "Map.h"
 #include "Wall.h"
 #include "Ship.h"
@@ -5,7 +13,7 @@
 
 using std::vector;
 
-Map::Map() {
+Map::Map(const string &map_name_) {
 		list.push_back(new Wall(Point3f(-100.0f, 12.0f, -25.0f), Vector3f(600.0f, 5.0f, 60.0f))); //left side
 		list.push_back(new Wall(Point3f(-100.0f, 12.0f, -25.0f), Vector3f(660.0f, -60.0f, 5.0f))); //bottom
 		list.push_back(new Wall(Point3f(-100.0f, -48.0f, -25.0f), Vector3f(660.0f, 5.0f, 60.0f))); //right side
@@ -59,4 +67,17 @@ Map_Object *Map::intersects(const Collision::Capsule &c) const {
 	}
 
 	return nullptr;
+}
+
+void Map::write_to_file(const string &fname) {
+	std::ofstream file(fname);
+	string line;
+
+	for (auto it = list.begin(); it != list.end(); ++it) {
+		auto wall = (*it);
+		auto corner = wall->get_corner();
+		auto scale = wall->get_scale();
+		auto rotation = wall->get_rotation();
+		file << "Wall " << corner.x << " " << corner.y << " " << corner.z << " " << scale.x << " " << scale.y << " " << scale.z << " ";
+	}
 }

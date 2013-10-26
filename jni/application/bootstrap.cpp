@@ -7,6 +7,7 @@
 #include <zenilib.h>
 
 #include "Play_State.h"
+#include "Level_Select_State.h"
 
 #if defined(_DEBUG) && defined(_WINDOWS)
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -52,6 +53,28 @@ private:
   }
 };
 
+typedef Title_State<Level_Select_State, Instructions_State> m_title_state;
+
+class Title_State_Custom : public m_title_state {
+public:
+	Title_State_Custom()
+		: m_title_state("")
+	{
+			m_widgets.unlend_Widget(title);
+			play_button.text = "Level Select";
+			play_button.color = get_Colors()["orange"];
+			get_Video().set_clear_Color(get_Colors()["purple"]);
+	}
+
+	void render() {
+		render_image("stars", Point2f(), Point2f(get_Window().get_width() / 2.0f, get_Window().get_height()));
+
+		m_title_state::render();
+
+		render_image("logo", Point2f(200.0f, 25.0f), Point2f(600.0f, 225.0f));
+	}
+};
+
 class Bootstrap {
   class Gamestate_One_Initializer : public Gamestate_Zero_Initializer {
     virtual Gamestate_Base * operator()() {
@@ -63,7 +86,7 @@ class Bootstrap {
       get_Fonts();
       get_Sounds();
 
-      return new Title_State<Play_State, Instructions_State>("Zenipex Library\nApplication");
+      return new Title_State_Custom;
     }
   } m_goi;
 

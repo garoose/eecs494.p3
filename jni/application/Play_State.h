@@ -2,6 +2,7 @@
 
 #include <zenilib.h>
 #include <vector>
+#include <string>
 
 #include "Player.h"
 #include "Wall.h"
@@ -73,8 +74,14 @@ private:
 	bool m_moved;
 	bool m_noclip;
 
+protected:
+	virtual void laser_collide_with_wall(const Map_Object *) {}
+
+	void render_3d() const;
+	void render_2d() const;
+
 public:
-	Play_State();
+	Play_State(const std::string &map_name_);
 
 	void on_push();
 	void on_pop();

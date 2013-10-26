@@ -15,6 +15,12 @@ public:
 		const Zeni::Quaternion &rotation_ = Zeni::Quaternion::Axis_Angle(Zeni::Vector3f(0.0f, 0.0f, 1.0f), 0.0f));
 	~Finish_Line();
 
+	virtual const std::string get_type() const override { return "Finish_Line"; }
+
+	virtual const Point3f &get_corner() const override { return m_corner; }
+	virtual const Vector3f &get_scale() const override { return m_scale; }
+	virtual const Quaternion &get_rotation() const override { return m_rotation; }
+
 	void reset();
 
 	void render() const override;

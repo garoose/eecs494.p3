@@ -1,6 +1,7 @@
 #pragma once
 
 #include <zenilib.h>
+#include <string>
 
 using namespace Zeni;
 
@@ -11,10 +12,17 @@ class Map_Object {
 public:
 	Map_Object() {}
 
+	virtual const std::string get_type() const= 0;
+
+	virtual const Point3f &get_corner() const = 0;
+	virtual const Vector3f &get_scale() const = 0;
+	virtual const Quaternion &get_rotation() const = 0;
+
 	virtual void render() const = 0;
 	virtual bool intersects(const Collision::Parallelepiped &p) const = 0;
-	virtual bool intersects(const Collision::Capsule &c) const { return false; }
-	//virtual const Vector3f &get_surface() const = 0;
+	virtual bool intersects(const Collision::Capsule &) const { return false; }
 
 	virtual void collide() {}
+	virtual void collide_with_ship() {}
+	virtual void collide_with_laser() {}
 };

@@ -18,6 +18,12 @@ public:
 	Wall & operator=(const Wall &rhs);
 	~Wall();
 
+	// Level 1
+	const std::string get_type() const override { return "Wall"; }
+	const Point3f &get_corner() const override { return m_corner; }
+	const Vector3f &get_scale() const override { return m_scale; }
+	const Quaternion &get_rotation() const override { return m_rotation; }
+
 	void render() const override;
 	bool intersects(const Collision::Parallelepiped &p) const override;
 	bool intersects(const Collision::Capsule &c) const override;

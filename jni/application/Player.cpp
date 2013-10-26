@@ -69,11 +69,11 @@ void Player::create_body() {
 	sr.set_listener_velocity(get_velocity());
 }
 
-void Player::render() {
+void Player::render() const {
 	Ship::render();
 }
 
-void Player::render_hp() {
+void Player::render_hp() const {
 	Video &vr = get_Video();
 
 	float x = 100.0f;

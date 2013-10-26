@@ -11,14 +11,14 @@ const String collide_sfx = "collide";
 const String explode_sfx = "explode";
 const String laser_sfx = "retro_laser";
 
-Ship::Ship(const Point3f &m_position_, const Vector3f &m_size_,
+Ship::Ship(const Point3f &m_corner_, const Vector3f &m_scale_,
 	const float &m_max_speed_, const float &m_acceleration_)
 	: m_source(new Sound_Source(get_Sounds()["collide"])),
-	m_position(m_position_),
-	m_size(m_size_),
+	m_corner(m_corner_),
+	m_scale(m_scale_),
 	m_max_speed(m_max_speed_),
 	m_acceleration(m_acceleration_),
-	m_reset_pos(m_position_),
+	m_reset_pos(m_corner_),
 	m_health(100.0f),
 	m_exploded(false)
 {
@@ -37,65 +37,66 @@ Ship::~Ship() {
 }
 
 Vector3f Ship::get_forward() const {
-	return m_orientation * SHIP_DEFAULT_FORWARD_VECTOR;
+	return m_rotation * SHIP_DEFAULT_FORWARD_VECTOR;
 }
 
 Vector3f Ship::get_up() const {
-	return m_orientation * SHIP_DEFAULT_UP_VECTOR;
+	return m_rotation * SHIP_DEFAULT_UP_VECTOR;
 }
 
 // Level 2
 void Ship::set_position(const Point3f &position) {
-	m_position = position;
+	m_corner = position;
 	create_body();
 }
 
 void Ship::reset() {
-	m_position = m_reset_pos;
-	m_orientation = Quaternion();
+	m_corner = m_reset_pos;
+	m_rotation = Quaternion();
 	m_velocity = Vector3f();
 	m_health = 100.0f;
 	m_exploded = false;
 }
 
 void Ship::adjust_pitch(const float &phi) {
-	m_orientation *= Quaternion(0.0f, phi, 0.0f, 0.0f);
+	m_rotation *= Quaternion(0.0f, phi, 0.0f, 0.0f);
 }
 
 void Ship::adjust_roll(const float &rho) {
-	m_orientation *= Quaternion(0.0f, 0.0f, rho, 0.0f);
+	m_rotation *= Quaternion(0.0f, 0.0f, rho, 0.0f);
 }
 
 void Ship::adjust_yaw(const float &theta) {
-	m_orientation *= Quaternion(theta, 0.0f, 0.0f, 0.0f);
+	m_rotation *= Quaternion(theta, 0.0f, 0.0f, 0.0f);
 }
 
 void Ship::step(const float &time_step) {
-	m_position += time_step * m_velocity;
+	m_corner += time_step * m_velocity;
 	create_body();
 }
 
 void Ship::step(const float &time_step, const Vector3f &velocity) {
-	m_position += time_step * (m_velocity + velocity);
+	m_corner += time_step * (m_velocity + velocity);
+
 	create_body();
 }
 
 void Ship::create_body() {
-    m_body = Parallelepiped(m_position,
-                            m_orientation * m_size.get_i(),
-							m_orientation * m_size.get_j(),
-							m_orientation * m_size.get_k());
+	auto rotation = m_rotation.get_rotation();
 
-	m_source->set_position(m_position + m_orientation * m_size / 2.0f);
-}
-
-void Ship::render() {
-	auto rotation = m_orientation.get_rotation();
-
-	m_model->set_translate(m_position);
-	m_model->set_scale(m_size);
+	m_model->set_translate(m_corner);
+	m_model->set_scale(m_scale);
 	m_model->set_rotate(rotation.second, rotation.first);
 
+    m_body = Parallelepiped(m_corner,
+                            m_rotation * m_scale.get_i(),
+							m_rotation * m_scale.get_j(),
+							m_rotation * m_scale.get_k());
+
+	m_source->set_position(m_corner + m_rotation * m_scale / 2.0f);
+}
+
+void Ship::render() const {
 	m_model->render();
 }
 
@@ -118,7 +119,7 @@ void Ship::explode() {
 Laser *Ship::fire_laser() {
 	if (laser_cooldown.seconds() == 0.0f) {
 		Vector3f endpt = -get_forward().normalize() + Vector3f(10.0f, 2.0f, 2.0f);
-		Laser *l = new Laser(get_center(), endpt, m_orientation);
+		Laser *l = new Laser(get_center(), endpt, m_rotation);
 		play_sound(laser_sfx);
 		laser_cooldown.start();
 
@@ -129,6 +130,8 @@ Laser *Ship::fire_laser() {
 			laser_cooldown.stop();
 			laser_cooldown.set(0.0f);
 		}
+
+		return nullptr;
 	}
 }
 

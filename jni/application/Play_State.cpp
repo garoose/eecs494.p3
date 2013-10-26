@@ -1,8 +1,13 @@
+#include <string>
+
 #include "Play_State.h"
 #include "Wall.h"
 
-Play_State::Play_State()
-	: m_moved(false),
+using std::string;
+
+Play_State::Play_State(const string &map_name_)
+	: m_map(map_name_),
+	m_moved(false),
 	m_noclip(false),
 	m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(2.0f, 8.0f, 1.5f)),
 	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(-60.0f, -5.0f, -60.0f))
@@ -166,6 +171,9 @@ void Play_State::perform_logic() {
 		reset();
 	}
 
+	/** Take care of controller vibration **/
+	m_bump.vibrate();
+
 	/** Shoot Lasers **/
 	if (m_controls.shoot) {
 		Laser *l = m_player.fire_laser();
@@ -236,6 +244,7 @@ void Play_State::perform_logic() {
 			Map_Object *colliding;
 			if ((colliding = m_map.intersects(laser->get_body()))) {
 				laser->collide();
+				laser_collide_with_wall(colliding);
 			}
 
 			if (laser->can_destroy()) {
@@ -265,10 +274,13 @@ void Play_State::render_plane(const Point3f &top_left, const Point3f &bottom_rig
 }
 
 void Play_State::render() {
+	render_3d();
+	render_2d();
+}
+
+void Play_State::render_3d() const {
 	Video &vr = get_Video();
 
-	m_bump.vibrate();
-	
 	// set player camera as view point
 	vr.set_3d(m_player.get_camera());
 
@@ -288,6 +300,10 @@ void Play_State::render() {
 
 	// Restore normal lighting
 	vr.set_lighting(false);
+}
+
+void Play_State::render_2d() const {
+	Video &vr = get_Video();
 
 	// Render HUD
 	Point2f window_size(get_Window().get_size());
@@ -295,35 +311,37 @@ void Play_State::render() {
 	vr.set_2d(std::pair<Point2f, Point2f>(Point2f(), window_size));
 	vr.clear_depth_buffer();
 
-		//render lap time
-		m_time.render();
+	//render lap time
+	m_time.render();
 
-		// render crosshairs
-		Vector2f crosshair_size(64.0f, 64.0f);
-		render_image("crosshair", window_center - crosshair_size, window_center + crosshair_size);
+	// render crosshairs
+	Vector2f crosshair_size(64.0f, 64.0f);
+	render_image("crosshair", window_center - crosshair_size, window_center + crosshair_size);
 
-		// render win message if finished
-		if (m_finish.crossed()) {
-			Font &fr = get_Fonts()["title"];
-			String msg = "You win";
-			fr.render_text(
-				msg,
-				Point2f(get_Window().get_size().x / 2 - fr.get_text_width(msg), 100.0f - 0.5f * fr.get_text_height()),
-				get_Colors()["title_text"],
-				ZENI_CENTER);
-		}
+	// render win message if finished
+	if (m_finish.crossed()) {
+		Font &fr = get_Fonts()["title"];
+		String msg = "You win";
+		fr.render_text(
+			msg,
+			Point2f(get_Window().get_size().x / 2 - fr.get_text_width(msg), 100.0f - 0.5f * fr.get_text_height()),
+			get_Colors()["title_text"],
+			ZENI_CENTER);
+	}
 
-		m_player.render_hp();
+	// render player health bar
+	m_player.render_hp();
 
-		if (m_noclip) {
-			Font &fr = get_Fonts()["title"];
-			String msg = "noclip";
-			fr.render_text(
-				msg,
-				Point2f(get_Window().get_size().x / 2, 100.0f - 0.5f * fr.get_text_height()),
-				get_Colors()["title_text"],
-				ZENI_CENTER);
-		}
+	// render a message if noclip is enabled
+	if (m_noclip) {
+		Font &fr = get_Fonts()["title"];
+		String msg = "noclip";
+		fr.render_text(
+			msg,
+			Point2f(get_Window().get_size().x / 2, 100.0f - 0.5f * fr.get_text_height()),
+			get_Colors()["title_text"],
+			ZENI_CENTER);
+	}
 }
 
 void Play_State::partial_ship_step(const float &time_step, const Vector3f &velocity) {

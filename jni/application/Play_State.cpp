@@ -16,8 +16,6 @@ Play_State::Play_State(const string &map_name_)
 
 	prev_ship_velocity = Vector3f();
 
-	m_light.position = m_player.get_camera().position;
-
 	/*** Joyfun ***/
 
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), 1);
@@ -172,9 +170,6 @@ void Play_State::perform_logic() {
 
 	/** Check if player already exploded **/
 	if (m_player.is_exploded()) {
-		Chronometer<Time> delay;
-		delay.start();
-		while (delay.seconds() < 1.5f) {}
 		reset();
 	}
 
@@ -262,9 +257,6 @@ void Play_State::perform_logic() {
 			}
 		}
 	} 
-
-	/** Reposition headlight **/
-	m_light.position = m_player.get_camera().position;
 }
 
 void Play_State::render_plane(const Point3f &top_left, const Point3f &bottom_right, const Color &c) {
@@ -293,8 +285,9 @@ void Play_State::render_3d() const {
 
 	// Lighting
 	vr.set_lighting(true);
-	vr.set_ambient_lighting(Color(1.0f, 0.0f, 0.0f, 0.0f));
-	vr.set_Light(0, m_light);
+	//r.set_ambient_lighting(Color(1.0f, 0.0f, 0.0f, 0.0f));
+	vr.set_ambient_lighting(Color(1.0f, 0.1f, 0.1f, 0.1f));
+	vr.set_Light(0, m_player.get_headlight());
 
 	m_map.render();
 	m_finish.render();

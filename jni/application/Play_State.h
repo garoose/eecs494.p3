@@ -20,8 +20,6 @@ private:
 	Lap_Time m_time;
 	Finish_Line m_finish;
 
-	Light m_light;
-
 	Vector3f prev_ship_velocity;
 
 	std::vector<Laser *> lasers;

@@ -7,22 +7,31 @@ using namespace Zeni::Collision;
 #define LASER_DEFAULT_UP_VECTOR            (Vector3f(0.0f, 0.0f, 1.0f))
 
 Laser::Laser(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
-	const Quaternion &rotation_)
+	const Quaternion &m_rotation_, const Vector3f &m_velocity_)
 	: m_source(new Sound_Source(get_Sounds()["laser_strike"])),
 	m_corner(m_corner_),
 	m_scale(m_scale_),
-	m_rotation(rotation_),
-	m_can_destroy(false)
+	m_rotation(m_rotation_),
+	m_can_destroy(false),
+	m_velocity(m_velocity_)
 {
 	if (!m_instance_count)
-		m_model = new Model("models/crate.3ds");
+		m_model = new Model("models/laser.3ds");
 	++m_instance_count;
 
 	expire.start();
 
-	m_velocity = (rotation_ * LASER_DEFAULT_FORWARD_VECTOR) * 100.0f;
+	m_size = Vector3f(10.0f, 2.0f, 2.0f);
+	m_size.multiply_by(m_scale);
 
 	create_body();
+}
+
+Laser::Laser(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
+	const Quaternion &m_rotation_)
+	: Laser(m_corner_, m_scale_, m_rotation_, Vector3f())
+{
+	m_velocity = (m_rotation_ * LASER_DEFAULT_FORWARD_VECTOR) * 200.0f;
 }
 
 Laser::~Laser() {
@@ -54,9 +63,9 @@ void Laser::step(const float &time_step) {
 
 void Laser::create_body() {
 	m_body = Parallelepiped(m_corner,
-		m_rotation * m_scale.get_i(),
-		m_rotation * m_scale.get_j(),
-		m_rotation * m_scale.get_k());
+		m_rotation * m_size.get_i(),
+		m_rotation * m_size.get_j(),
+		m_rotation * m_size.get_k());
 
 	m_source->set_position(m_corner + m_rotation * m_scale / 2.0f);
 }

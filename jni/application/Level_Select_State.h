@@ -18,7 +18,7 @@ static const Vector2f button_size = Vector2f(120.0f, 50.0f);
 static const float row[3] = { 200.0f, 320.0f, 390.0f };
 static const float col[2] = { 280.0f, 420.0f };
 
-static class My_Button : public Text_Button {
+class My_Button : public Text_Button {
 public:
 	My_Button(const Point2f &corner_, const Vector2f &size_, const String &text_)
 		: Text_Button(corner_, corner_ + size_, "system_36_800x600", text_)

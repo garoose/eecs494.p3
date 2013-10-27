@@ -41,6 +41,10 @@ The following things are unsupported:
     <filepath>textures/crate_light.png</filepath>
     <tile>1</tile>
   </CRATE.PNG>
+  <EXPLODE.PNG>
+    <filepath>textures/explode.png</filepath>
+    <tile>1</tile>
+  </EXPLODE.PNG>
 
   <logo>
     <filepath>textures/logo.png</filepath>

@@ -33,7 +33,6 @@ public:
 
 	// Level 3
 	void step(const float &time_step);
-	void step(const float &time_step, const Vector3f &velocity);
 	void render() const;
 	void render_hp() const;
 };

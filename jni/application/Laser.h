@@ -19,6 +19,7 @@ class Laser : public Map_Object {
 	Quaternion m_rotation;
 
 	// Level 2
+	Vector3f m_size;
 	Vector3f m_scale;
 
 	// Level 3
@@ -30,7 +31,10 @@ class Laser : public Map_Object {
 
 public:
 	Laser(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
-		const Quaternion &rotation_ = Quaternion());
+		const Quaternion &m_rotation_, const Vector3f &m_velocity_);
+
+	Laser(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
+		const Quaternion &m_rotation_);
 
 	~Laser();
 

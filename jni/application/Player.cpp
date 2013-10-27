@@ -53,12 +53,6 @@ void Player::step(const float &time_step) {
 	_set_position();
 }
 
-void Player::step(const float &time_step, const Vector3f &velocity) {
-	Ship::step(time_step, velocity);
-
-	_set_position();
-}
-
 void Player::create_body() {
 	Ship::create_body();
 

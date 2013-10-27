@@ -15,8 +15,8 @@ static Play_State *m_play_state;
 //static std::string selected;
 
 static const Vector2f button_size = Vector2f(120.0f, 50.0f);
-static const float row[3] = { 200.0f, 350.0f, 420.0f };
-static const float col[2] = { 250.0f, 450.0f };
+static const float row[3] = { 200.0f, 320.0f, 390.0f };
+static const float col[2] = { 280.0f, 420.0f };
 
 static class My_Button : public Text_Button {
 public:
@@ -40,10 +40,22 @@ public:
 		m_play_state = nullptr;
 
 		m_widgets.lend_Widget(map_selection);
-		m_widgets.lend_Widget(back_button);
+		//map_selection.lend_BG_Renderer(new Widget_Renderer_Color(Color(0.0f, 0.0f, 0.0f, 0.0f)));
+		map_selection.lend_BG_Renderer(new Widget_Renderer_Color(Color(0.3f, 0.0f, 0.6f, 1.0f)));
+		map_selection.set_justify(ZENI_CENTER);
+
+		m_widgets.lend_Widget(play_button);
+		play_button.give_Renderer(new Widget_Renderer_Tricolor(
+			Color(0.8f, 0.0f, 1.0f, 0.4f),
+			Color(0.8f, 0.6f, 1.0f, 1.0f),
+			Color(0.8f, 0.0f, 1.0f, 0.8f),
+			get_Colors()["default_button_text_normal"],
+			get_Colors()["default_button_text_clicked"],
+			get_Colors()["default_button_text_hovered_strayed"]));
+
 		m_widgets.lend_Widget(prev_button);
 		m_widgets.lend_Widget(next_button);
-		m_widgets.lend_Widget(play_button);
+		m_widgets.lend_Widget(back_button);
 		m_widgets.lend_Widget(edit_button);
 	}
 
@@ -68,22 +80,27 @@ public:
 	class Map_Selection : public Text_Box {
 	public:
 		Map_Selection()
-			: Text_Box(Point2f(col[0], row[0]), Point2f(col[0] + 320.0f, row[0] + 100.0f), "title", "", get_Colors()["black"])
+			: Text_Box(Point2f(200.0f, row[0]), Point2f(620.0f, row[0] + 100.0f), "system_36_800x600", "", get_Colors()["white"])
 		{}
 
-	} map_selection;
+		void perform_logic() override {
+			set_text(String(*selected));
+		}
 
-	class Back_Button : public My_Button {
+	} map_selection;
+	
+	class Play_Button : public My_Button {
 	public:
-		Back_Button()
-			: My_Button(Point2f(20.0f, 500.0f), button_size, "Back")
+		Play_Button()
+			: My_Button(Point2f(col[0], row[1]), Vector2f(button_size.x * 2.0f + 20.0f, button_size.y), "Play")
 		{}
 
 		void on_accept() override {
-			get_Game().pop_state();
+			Play_State *s = new Play_State(*selected);
+			get_Game().push_state(s);
 		}
 
-	} back_button;
+	} play_button;
 
 	class Prev_Button : public My_Button {
 	public:
@@ -113,25 +130,23 @@ public:
 
 	} next_button;
 
-	class Play_Button : public My_Button {
+	class Back_Button : public My_Button {
 	public:
-		Play_Button()
-			: My_Button(Point2f(col[0], row[1]), button_size, "Play")
+		Back_Button()
+			: My_Button(Point2f(20.0f, 500.0f), button_size, "Back")
 		{}
 
 		void on_accept() override {
-			Play_State *s = new Play_State(*selected);
-			get_Game().push_state(s);
+			get_Game().pop_state();
 		}
 
-	} play_button;
+	} back_button;
 
 	class Edit_Button : public My_Button {
 	public:
 		Edit_Button()
-			: My_Button(Point2f(col[1], row[1]), button_size, "Edit")
+			: My_Button(Point2f(700.0f, 500.0f), button_size, "Edit")
 		{}
-
 
 	} edit_button;
 

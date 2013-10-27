@@ -64,8 +64,8 @@ public:
 	{
 			m_widgets.unlend_Widget(title);
 			play_button.text = "Level Select";
-			play_button.color = get_Colors()["orange"];
-			get_Video().set_clear_Color(get_Colors()["purple"]);
+			//play_button.lend_Renderer(new Widget_Renderer_Color(get_Colors()["orange"]));
+			//play_button.give_Renderer(new Widget_Renderer_Tricolor(get_Colors()["orange"], get_Colors()["orange"], get_Colors()["yellow"], get_Colors()["white"],get_Colors()["white"],get_Colors()["white"]));
 	}
 
 	void render() {

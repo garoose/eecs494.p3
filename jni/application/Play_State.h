@@ -104,4 +104,7 @@ private:
 	void render_plane(const Point3f &top_left, const Point3f &bottom_right, const Color &c);
 
 	bool check_collisions();
+
+	bool m_controller_mouse;
+	Zeni::Window::Mouse_State m_mouse_state;
 };

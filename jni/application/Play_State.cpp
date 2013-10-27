@@ -16,7 +16,7 @@ Play_State::Play_State(const string &map_name_)
 
 	prev_ship_velocity = Vector3f();
 
-	m_light.position = m_player.get_position();
+	m_light.position = m_player.get_camera().position;
 
 	/*** Joyfun ***/
 
@@ -35,11 +35,18 @@ Play_State::Play_State(const string &map_name_)
 }
 
 void Play_State::on_push() {
+	m_controller_mouse = get_Game().controller_mouse.enabled;
+	get_Game().controller_mouse.enabled = false;
+
+	m_mouse_state = get_Window().get_mouse_state();
 	get_Window().set_mouse_state(Window::MOUSE_RELATIVE);
 }
 
 void Play_State::on_pop() {
 	get_Controllers().reset_vibration_all();
+
+	get_Game().controller_mouse.enabled = m_controller_mouse;
+	get_Window().set_mouse_state(m_mouse_state);
 }
 
 void Play_State::on_cover() {
@@ -254,10 +261,10 @@ void Play_State::perform_logic() {
 				++it;
 			}
 		}
-	}
+	} 
 
 	/** Reposition headlight **/
-	m_light.position = m_player.get_position();
+	m_light.position = m_player.get_camera().position;
 }
 
 void Play_State::render_plane(const Point3f &top_left, const Point3f &bottom_right, const Color &c) {
@@ -286,7 +293,7 @@ void Play_State::render_3d() const {
 
 	// Lighting
 	vr.set_lighting(true);
-	vr.set_ambient_lighting(Color(1.0f, 0.1f, 0.1f, 0.1f));
+	vr.set_ambient_lighting(Color(1.0f, 0.0f, 0.0f, 0.0f));
 	vr.set_Light(0, m_light);
 
 	m_map.render();

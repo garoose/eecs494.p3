@@ -46,6 +46,10 @@ The following things are unsupported:
     <filepath>textures/logo.png</filepath>
     <tile>0</tile>
   </logo>
+  <level_select>
+    <filepath>textures/level_select.png</filepath>
+    <tile>0</tile>
+  </level_select>
   <stars>
     <filepath>textures/star_bg.png</filepath>
     <tile>1</tile>

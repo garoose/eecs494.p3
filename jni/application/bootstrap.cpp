@@ -34,6 +34,8 @@ private:
   }
 
   void render() {
+	render_image("stars", Point2f(), Point2f(get_Window().get_width() / 2.0f, get_Window().get_height()));
+
     Widget_Gamestate::render();
 
     Zeni::Font &fr = get_Fonts()["title"];
@@ -53,12 +55,12 @@ private:
   }
 };
 
-typedef Title_State<Level_Select_State, Instructions_State> m_title_state;
+typedef Title_State<Level_Select_State, Instructions_State> Title_State_T;
 
-class Title_State_Custom : public m_title_state {
+class Title_State_Custom : public Title_State_T {
 public:
 	Title_State_Custom()
-		: m_title_state("")
+		: Title_State_T("")
 	{
 			m_widgets.unlend_Widget(title);
 			play_button.text = "Level Select";
@@ -69,9 +71,9 @@ public:
 	void render() {
 		render_image("stars", Point2f(), Point2f(get_Window().get_width() / 2.0f, get_Window().get_height()));
 
-		m_title_state::render();
+		Title_State_T::render();
 
-		render_image("logo", Point2f(200.0f, 25.0f), Point2f(600.0f, 225.0f));
+		render_image("logo", Point2f(150.0f, 25.0f), Point2f(650.0f, 225.0f));
 	}
 };
 

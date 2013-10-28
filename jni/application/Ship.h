@@ -1,6 +1,7 @@
 #pragma once
 
 #include <zenilib.h>
+#include <map>
 
 #include "Laser.h"
 
@@ -14,13 +15,14 @@ class Ship {
 	Point3f m_corner;
 	Quaternion m_rotation;
 
-	Sound_Source *m_source;
+	std::map<String, Sound_Source *> sounds;
 	int m_health;
 	bool m_exploded;
 	Chronometer<Time> m_exploding;
 
 	// Level 2
 	Vector3f m_scale;
+	Vector3f m_size;
 
 	// Level 3
 	Collision::Parallelepiped m_body; // collision
@@ -51,9 +53,9 @@ public:
 	static unsigned long m_instance_count;
 
 	const Point3f &get_position() const { return m_corner;  }
-	const Vector3f &get_size() { return m_scale; }
+	const Vector3f &get_size() { return m_size; }
 	const Quaternion &get_orientation() { return m_rotation;  }
-	const Point3f get_center() { return m_corner + (m_rotation * m_scale) / 2.0f; }
+	const Point3f get_center() { return m_corner + (m_rotation * m_size) / 2.0f; }
 
 	Vector3f get_forward() const;
 	Vector3f get_up() const;
@@ -82,9 +84,14 @@ public:
 
 	virtual void render() const;
 	virtual void collide();
+	virtual void collide_with_laser();
 	virtual void explode();
 
+	bool intersects(const Ship &s) const;
+
 	Laser *fire_laser();
+
+	void stop_all_sounds();
 
 private:
 	void play_sound(const String &s);

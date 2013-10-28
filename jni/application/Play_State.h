@@ -16,6 +16,7 @@ using namespace Zeni;
 class Play_State : public Gamestate_II {
 private:
 	Player m_player;
+	Ship m_enemy;
 	Map m_map;
 	Lap_Time m_time;
 	Finish_Line m_finish;
@@ -97,6 +98,10 @@ public:
 
 private:
 	void partial_ship_step(const float &time_step, const Vector3f &velocity);
+	void partial_ship_pitch(const float &time_step, const float &phi);
+	void partial_ship_yaw(const float &time_step, const float &theta);
+	void partial_ship_roll(const float &time_step, const float &rho);
+
 	void partial_laser_step(const float &time_step, const Vector3f &velocity);
 
 	void render_plane(const Point3f &top_left, const Point3f &bottom_right, const Color &c);

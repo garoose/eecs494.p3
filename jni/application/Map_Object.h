@@ -20,7 +20,6 @@ public:
 
 	virtual void render() const = 0;
 	virtual bool intersects(const Collision::Parallelepiped &p) const = 0;
-	virtual bool intersects(const Collision::Capsule &) const { return false; }
 
 	virtual void collide() {}
 	virtual void collide_with_ship() {}

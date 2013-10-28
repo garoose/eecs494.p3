@@ -1,15 +1,15 @@
 #include "Player.h"
 
-Player::Player(const Camera &camera_, const Vector3f &size_, const float &max_speed_, const float &acceleration_)
+Player::Player(const Camera &camera_, const Vector3f &size_, const float &max_speed_, const float &acceleration_, const Vector3f &camera_offset_)
 	: m_camera(camera_),
-	m_camera_offset(7.0f),
-	Ship(m_camera.position, size_, max_speed_, acceleration_)
+	m_camera_offset(camera_offset_),
+	Ship(camera_.position, size_, max_speed_, acceleration_)
 {
 	m_camera.fov_rad = Zeni::Global::pi / 3.0f;
 }
 
 void Player::_set_position() {
-	Vector3f offset = -get_forward().normalize() * m_camera_offset + get_up().normalize() * m_camera_offset / 3.0f;
+	Vector3f offset = -get_forward().normalize() * m_camera_offset.x + get_left().normalize() * m_camera_offset.y + get_up().normalize() * m_camera_offset.z;
 	m_camera.position = (get_center()) + (offset);
 }
 
@@ -49,6 +49,12 @@ void Player::adjust_yaw(const float &theta) {
 // Level 3
 void Player::step(const float &time_step) {
 	Ship::step(time_step);
+
+	if (is_exploding())
+		get_Controllers().set_vibration(0, 0.5f, 0.5f);
+
+	if (is_exploded())
+		get_Controllers().set_vibration(0, 0.0f, 0.0f);
 
 	_set_position();
 }

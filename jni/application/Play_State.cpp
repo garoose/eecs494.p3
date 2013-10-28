@@ -9,7 +9,8 @@ Play_State::Play_State(const string &map_name_)
 	: m_map(map_name_),
 	m_moved(false),
 	m_noclip(false),
-	m_player(Camera(Point3f(0.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(2.0f, 8.0f, 1.5f)),
+	m_player(Camera(Point3f(-100.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(1.0f, 1.0f, 1.0f)),
+	m_enemy(Point3f(10.0f, 100.0f, 50.0f), Vector3f(1.0f, 1.0f, 1.0f), 100.0f, 1.0f),
 	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(-60.0f, -5.0f, -60.0f))
 {
 	set_pausable(true);
@@ -153,6 +154,7 @@ void Play_State::on_key(const SDL_KeyboardEvent &event) {
 
 void Play_State::reset() {
 	m_player.reset();
+	m_enemy.reset();
 	m_time.reset();
 	m_finish.reset();
 	prev_ship_velocity = Vector3f();
@@ -234,21 +236,36 @@ void Play_State::perform_logic() {
 		partial_ship_step(time_step, y_vel);
 		partial_ship_step(time_step, z_vel);
 
-		m_player.adjust_pitch(m_controls.joy_y / 40.0f);
-		m_player.adjust_yaw(m_controls.joy_x / 40.0f);
-		m_player.adjust_roll((m_controls.roll_right - m_controls.roll_left) * time_step);
+		partial_ship_pitch(time_step, m_controls.joy_y);
+		partial_ship_yaw(time_step, m_controls.joy_x);
+		partial_ship_roll(time_step, (m_controls.roll_right - m_controls.roll_left));
+
+		//move enemy ships
+		m_enemy.step(time_step);
 
 		//step lasers
 		for (auto it = lasers.begin(); it != lasers.end();) {
 			auto laser = (*it);
 			laser->step(time_step);
 
+			//collide lasers with map
 			Map_Object *colliding;
 			if ((colliding = m_map.intersects(laser->get_body()))) {
 				laser->collide();
 				laser_collide_with_wall(colliding);
 			}
 
+			//collide lasers with ships
+			if (laser->intersects(m_player.get_body())) {
+				laser->collide();
+				m_player.collide_with_laser();
+			}
+			if (laser->intersects(m_enemy.get_body())) {
+				laser->collide();
+				m_enemy.collide_with_laser();
+			}
+
+			//remove any destroyed lasers
 			if (laser->can_destroy()) {
 				it = lasers.erase(it);
 				delete laser;
@@ -292,6 +309,7 @@ void Play_State::render_3d() const {
 	m_map.render();
 	m_finish.render();
 	m_player.render();
+	m_enemy.render();
 
 	//render lasers
 	for (auto it = lasers.begin(); it != lasers.end(); ++it) {
@@ -346,26 +364,37 @@ void Play_State::render_2d() const {
 
 void Play_State::partial_ship_step(const float &time_step, const Vector3f &velocity) {
 	const Point3f backup_position = m_player.get_position();
+	bool has_collided = false;
+	float bounce = 0.0f;
 
-	//m_player.step(time_step, velocity);
 	m_player.set_velocity(velocity);
 	m_player.step(time_step);
 
 	/** If collision with the map has occurred, roll things back **/
-	Map_Object *colliding;
-	if (!m_noclip && (colliding = m_map.intersects(m_player.get_body()))) {
-		if (m_moved)
-		{
-			/** Play a sound if possible **/
+	Map_Object *colliding = m_map.intersects(m_player.get_body());
+	if (!m_noclip && colliding) {
+		colliding->collide();
+		has_collided = true;
+		bounce = -1.2f;
+	}
+
+	//collide with other ships
+	if (!m_noclip && m_enemy.intersects(m_player)) {
+		has_collided = true;
+		bounce = -1.0f;
+	}
+	
+	/** If collision has occurred, play a sound and roll things back **/
+	if (has_collided) {
+		if (m_moved) {
 			m_player.collide();
-			//colliding->collide();
 			m_bump.bump();
 			m_moved = false;
 		}
 
 		m_player.set_position(backup_position);
 		// figure out bounce vector
-		prev_ship_velocity += (velocity * -1.5f);
+		prev_ship_velocity += (velocity * bounce);
 	}
 	else {
 		prev_ship_velocity += velocity;
@@ -380,5 +409,104 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 			m_finish.collide();
 		}
 		m_time.pause();
+	}
+}
+
+void Play_State::partial_ship_pitch(const float &time_step, const float &phi) {
+	bool has_collided = false;
+	float bounce = 0.0f;
+
+	m_player.adjust_pitch(time_step * phi);
+		
+	/** If collision with the map has occurred, roll things back **/
+	Map_Object *colliding = m_map.intersects(m_player.get_body());
+	if (!m_noclip && colliding) {
+		colliding->collide();
+		has_collided = true;
+		bounce = -1.2f;
+	}
+
+	//collide with other ships
+	if (!m_noclip && m_enemy.intersects(m_player)) {
+		has_collided = true;
+		bounce = -1.0f;
+	}
+
+	/** If collision has occurred, play a sound and roll things back **/
+	if (has_collided) {
+		if (m_moved) {
+			m_player.collide();
+			m_bump.bump();
+			m_moved = false;
+		}
+
+		m_player.adjust_pitch(-time_step * phi);
+		// figure out bounce vector
+	}
+}
+
+void Play_State::partial_ship_yaw(const float &time_step, const float &theta) {
+	bool has_collided = false;
+	float bounce = 0.0f;
+
+	m_player.adjust_yaw(time_step * theta);
+
+	/** If collision with the map has occurred, roll things back **/
+	Map_Object *colliding = m_map.intersects(m_player.get_body());
+	if (!m_noclip && colliding) {
+		colliding->collide();
+		has_collided = true;
+		bounce = -1.2f;
+	}
+
+	//collide with other ships
+	if (!m_noclip && m_enemy.intersects(m_player)) {
+		has_collided = true;
+		bounce = -1.0f;
+	}
+
+	/** If collision has occurred, play a sound and roll things back **/
+	if (has_collided) {
+		if (m_moved) {
+			m_player.collide();
+			m_bump.bump();
+			m_moved = false;
+		}
+
+		m_player.adjust_yaw(-time_step * theta);
+		// figure out bounce vector
+	}
+}
+
+void Play_State::partial_ship_roll(const float &time_step, const float &rho) {
+	bool has_collided = false;
+	float bounce = 0.0f;
+
+	m_player.adjust_roll(time_step * rho);
+
+	/** If collision with the map has occurred, roll things back **/
+	Map_Object *colliding = m_map.intersects(m_player.get_body());
+	if (!m_noclip && colliding) {
+		colliding->collide();
+		has_collided = true;
+		bounce = -1.2f;
+	}
+
+	//collide with other ships
+	if (!m_noclip && m_enemy.intersects(m_player)) {
+		has_collided = true;
+		bounce = -1.0f;
+	}
+
+	/** If collision has occurred, play a sound and roll things back **/
+	if (has_collided) {
+		if (m_moved) {
+			m_player.collide();
+			m_bump.bump();
+			m_moved = false;
+		}
+
+		m_player.adjust_roll(-time_step * rho);
+		// figure out bounce vector
 	}
 }

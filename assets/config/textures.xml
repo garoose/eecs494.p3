@@ -45,7 +45,23 @@ The following things are unsupported:
     <filepath>textures/explode.png</filepath>
     <tile>1</tile>
   </EXPLODE.PNG>
-
+  <WALL1.PNG>
+    <filepath>textures/wall1.png</filepath>
+    <tile>1</tile>
+  </WALL1.PNG>
+  <FLOOR1.PNG>
+    <filepath>textures/floor1.png</filepath>
+    <tile>1</tile>
+  </FLOOR1.PNG>
+  <SHIP_BAC.PNG>
+    <filepath>textures/ship_back.png</filepath>
+    <tile>1</tile>
+  </SHIP_BAC.PNG>
+  <SHIP_FRO.PNG>
+    <filepath>textures/ship_front.png</filepath>
+    <tile>1</tile>
+  </SHIP_FRO.PNG>
+  
   <logo>
     <filepath>textures/logo.png</filepath>
     <tile>0</tile>

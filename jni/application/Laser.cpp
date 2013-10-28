@@ -21,7 +21,7 @@ Laser::Laser(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
 
 	expire.start();
 
-	m_size = Vector3f(10.0f, 2.0f, 2.0f);
+	m_size = m_model->get_extents().upper_bound - m_model->get_extents().lower_bound;
 	m_size.multiply_by(m_scale);
 
 	create_body();
@@ -62,10 +62,15 @@ void Laser::step(const float &time_step) {
 }
 
 void Laser::create_body() {
-	m_body = Parallelepiped(m_corner,
-		m_rotation * m_size.get_i(),
-		m_rotation * m_size.get_j(),
-		m_rotation * m_size.get_k());
+	if (exploding.seconds()) {
+		m_body = Parallelepiped();
+	}
+	else {
+		m_body = Parallelepiped(m_corner,
+			m_rotation * m_size.get_i(),
+			m_rotation * m_size.get_j(),
+			m_rotation * m_size.get_k());
+	}
 
 	m_source->set_position(m_corner + m_rotation * m_scale / 2.0f);
 }

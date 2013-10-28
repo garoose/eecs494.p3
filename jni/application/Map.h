@@ -17,6 +17,9 @@ public:
 	Map(const std::string &map_name_);
 	~Map();
 
+	void reset();
+
+	void step(const float &time_step);
 	void render() const;
 	Map_Object *intersects(const Collision::Parallelepiped &p) const;
 	Map_Object *intersects(const Collision::Capsule &c) const;

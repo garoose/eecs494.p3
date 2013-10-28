@@ -11,11 +11,12 @@ Wall_Base::Wall_Base(const Point3f &corner_,
 	m_rotation(rotation_)
 {
 	m_instance = &m_model_map[model_file_];
-	m_model = m_instance->model;
 
 	if (!m_instance->count)
-		m_model = new Model(model_file_);
-	++m_instance->count;
+		m_instance->model = new Model(model_file_);
+	++(m_instance->count);
+
+	m_model = m_instance->model;
 
 	m_size = m_model->get_extents().upper_bound - m_model->get_extents().lower_bound;
 	m_size.multiply_by(m_scale);
@@ -30,7 +31,7 @@ m_rotation(rhs.m_rotation),
 m_instance(rhs.m_instance),
 m_model(rhs.m_model)
 {
-	++m_instance->count;
+	++(m_instance->count);
 
 	create_body();
 }
@@ -46,7 +47,7 @@ Wall_Base & Wall_Base::operator=(const Wall_Base &rhs) {
 }
 
 Wall_Base::~Wall_Base() {
-	if (!--m_instance->count) {
+	if (!--(m_instance->count)) {
 		delete m_model;
 		m_model = nullptr;
 	}

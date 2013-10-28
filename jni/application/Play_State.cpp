@@ -9,8 +9,8 @@ Play_State::Play_State(const string &map_name_)
 	: m_map(map_name_),
 	m_moved(false),
 	m_noclip(false),
-	m_player(Camera(Point3f(-100.0f, 0.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(1.0f, 1.0f, 1.0f)),
-	m_enemy(Point3f(10.0f, 100.0f, 50.0f), Vector3f(1.0f, 1.0f, 1.0f), 100.0f, 1.0f),
+	m_player(Camera(Point3f(-100.0f, -100.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(1.0f, 1.0f, 1.0f)),
+	m_enemy(Point3f(20.0f, -100.0f, 30.0f), Vector3f(1.0f, 1.0f, 1.0f), 100.0f, 1.0f),
 	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(-60.0f, -5.0f, -60.0f))
 {
 	set_pausable(true);
@@ -25,8 +25,8 @@ Play_State::Play_State(const string &map_name_)
 	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTY /* forward-backward */), 3);
 	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTX /* yaw */), 4);
 	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTY /* pitch */), 5);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERLEFT /*  */), 6);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERRIGHT /*  */), 7);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERLEFT /* brake */), 6);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERRIGHT /* shoot */), 7);
 	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_LEFTSHOULDER /* rotate left */), 8);
 	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER /* rotate right */), 9);
 	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START /* reset */), 10);
@@ -82,6 +82,7 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 		break;
 
 	case 6: // left trigger
+		m_controls.brake = confidence;
 		break;
 
 	case 7: // right trigger
@@ -153,6 +154,7 @@ void Play_State::on_key(const SDL_KeyboardEvent &event) {
 }
 
 void Play_State::reset() {
+	m_map.reset();
 	m_player.reset();
 	m_enemy.reset();
 	m_time.reset();
@@ -198,6 +200,10 @@ void Play_State::perform_logic() {
 
 	Vector3f velocity = prev_ship_velocity + forward_accel + side_accel;
 
+	/** Perform braking **/
+	const float &braking = m_controls.brake;
+	velocity -= velocity * braking / 20.0f;
+
 	/** Don't go over max speed **/
 	float result_speed = velocity.magnitude2();
 	while (result_speed > m_player.get_max_speed()) {
@@ -206,7 +212,7 @@ void Play_State::perform_logic() {
 	}
 
 	/** Air resistance **/
-	velocity += prev_ship_velocity * -0.01f;
+	velocity += prev_ship_velocity * -0.007f;
 
 	prev_ship_velocity = Vector3f();
 
@@ -236,9 +242,9 @@ void Play_State::perform_logic() {
 		partial_ship_step(time_step, y_vel);
 		partial_ship_step(time_step, z_vel);
 
-		partial_ship_pitch(time_step, m_controls.joy_y);
-		partial_ship_yaw(time_step, m_controls.joy_x);
-		partial_ship_roll(time_step, (m_controls.roll_right - m_controls.roll_left));
+		partial_ship_pitch(time_step, m_controls.joy_y * 1.5f);
+		partial_ship_yaw(time_step, m_controls.joy_x * 1.5f);
+		partial_ship_roll(time_step, (m_controls.roll_right - m_controls.roll_left) * 1.5f);
 
 		//move enemy ships
 		m_enemy.step(time_step);
@@ -252,7 +258,7 @@ void Play_State::perform_logic() {
 			Map_Object *colliding;
 			if ((colliding = m_map.intersects(laser->get_body()))) {
 				laser->collide();
-				laser_collide_with_wall(colliding);
+				colliding->collide_with_laser();
 			}
 
 			//collide lasers with ships
@@ -272,7 +278,10 @@ void Play_State::perform_logic() {
 			} else {
 				++it;
 			}
-		}
+		} // end lasers
+
+		// step the map
+		m_map.step(time_step);
 	} 
 }
 
@@ -375,11 +384,11 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 	if (!m_noclip && colliding) {
 		colliding->collide();
 		has_collided = true;
-		bounce = -1.2f;
+		bounce = -1.0f;
 	}
 
 	//collide with other ships
-	if (!m_noclip && m_enemy.intersects(m_player)) {
+	if (!m_noclip && m_enemy.intersects(m_player.get_body())) {
 		has_collided = true;
 		bounce = -1.0f;
 	}
@@ -427,7 +436,7 @@ void Play_State::partial_ship_pitch(const float &time_step, const float &phi) {
 	}
 
 	//collide with other ships
-	if (!m_noclip && m_enemy.intersects(m_player)) {
+	if (!m_noclip && m_enemy.intersects(m_player.get_body())) {
 		has_collided = true;
 		bounce = -1.0f;
 	}
@@ -460,7 +469,7 @@ void Play_State::partial_ship_yaw(const float &time_step, const float &theta) {
 	}
 
 	//collide with other ships
-	if (!m_noclip && m_enemy.intersects(m_player)) {
+	if (!m_noclip && m_enemy.intersects(m_player.get_body())) {
 		has_collided = true;
 		bounce = -1.0f;
 	}
@@ -493,7 +502,7 @@ void Play_State::partial_ship_roll(const float &time_step, const float &rho) {
 	}
 
 	//collide with other ships
-	if (!m_noclip && m_enemy.intersects(m_player)) {
+	if (!m_noclip && m_enemy.intersects(m_player.get_body())) {
 		has_collided = true;
 		bounce = -1.0f;
 	}

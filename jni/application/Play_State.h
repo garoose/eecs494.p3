@@ -32,7 +32,8 @@ private:
 
 	struct Controls {
 		Controls() : forward(0.0f), left(0.0f), back(0.0f), right(0.0f),
-			joy_x(0.0f), joy_y(0.0f), roll_left(false), roll_right(false), shoot(false), boost(0.0f) {}
+			joy_x(0.0f), joy_y(0.0f), roll_left(false), roll_right(false), 
+			shoot(false), brake(0.0f), boost(0.0f) {}
 
 		float forward;
 		float left;
@@ -43,6 +44,7 @@ private:
 		bool roll_left;
 		bool roll_right;
 		bool shoot;
+		float brake;
 		float boost;
 	} m_controls; //end struct Controls
 
@@ -74,8 +76,6 @@ private:
 	bool m_noclip;
 
 protected:
-	virtual void laser_collide_with_wall(const Map_Object *) {}
-
 	void render_3d() const;
 	void render_2d() const;
 

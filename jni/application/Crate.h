@@ -1,21 +1,19 @@
 #pragma once
 
 #include <zenilib.h>
-#include <map>
 
-#include "Laser.h"
+#include "Map_Object.h"
 
 using namespace Zeni;
 
-class Ship {
+class Crate : public Map_Object {
 	Point3f m_reset_pos;
-	Chronometer<Time> laser_cooldown;
+	Sound_Source *m_source;
 
 	// Level 1/2
 	Point3f m_corner;
 	Quaternion m_rotation;
 
-	std::map<String, Sound_Source *> sounds;
 	int m_health;
 	bool m_exploded;
 	Chronometer<Time> m_exploding;
@@ -26,23 +24,22 @@ class Ship {
 
 	// Level 3
 	Collision::Parallelepiped m_body; // collision
-	Light m_headlight;
-	float m_max_speed;
-	float m_acceleration;
 	Vector3f m_velocity;
 
 	// Level 4
-	// Controls are external to Ship
+	// A Crate has no controls
 
 protected:
 	virtual void create_body();
 
 public:
-	Ship(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
-		const float &m_max_speed_, const float &m_acceleration_);
+	Crate(const Zeni::Point3f &m_corner_ = Zeni::Point3f(0.0f, 0.0f, 0.0f),
+		const Zeni::Vector3f &m_scale_ = Zeni::Vector3f(1.0f, 1.0f, 1.0f),
+		const Zeni::Quaternion &m_rotation_ = Zeni::Quaternion::Axis_Angle(Zeni::Vector3f(0.0f, 0.0f, 1.0f), 0.0f));
 
-	~Ship();
+	~Crate();
 
+	const std::string get_type() const override { return "Crate"; }
 	int get_health() const { return m_health; }
 	bool is_exploding() const { return m_exploding.seconds(); }
 	bool is_exploded() const { return m_exploded; }
@@ -52,17 +49,14 @@ public:
 	static Model *m_explosion;
 	static unsigned long m_instance_count;
 
-	const Point3f &get_position() const { return m_corner;  }
-	const Vector3f &get_size() const { return m_size; }
-	const Quaternion &get_orientation() const { return m_rotation;  }
+	const Point3f &get_corner() const override { return m_corner; }
+	const Vector3f &get_scale() const override { return m_scale; }
+	const Quaternion &get_rotation() const override { return m_rotation; }
 	const Point3f get_center() const { return m_corner + (m_rotation * m_size) / 2.0f; }
 
 	Vector3f get_forward() const;
 	Vector3f get_up() const;
 	Vector3f get_left() const;
-
-	const float &get_acceleration() const { return m_acceleration; }
-	const float &get_max_speed() const { return m_max_speed; }
 
 	// Level 2
 	void set_position(const Zeni::Point3f &position);
@@ -74,7 +68,6 @@ public:
 
 	// Level 3
 	const Zeni::Collision::Parallelepiped & get_body() const { return m_body; }
-	const Light &get_headlight() const { return m_headlight; }
 
 	const Zeni::Vector3f & get_velocity() const { return m_velocity; }
 	void set_velocity(const Zeni::Vector3f &velocity_) { m_velocity = velocity_; }
@@ -82,17 +75,12 @@ public:
 
 	void step(const float &time_step);
 
-	virtual void render() const;
-	virtual void collide();
-	virtual void collide_with_laser();
-	virtual void explode();
-
-	bool intersects(const Collision::Parallelepiped &s) const;
-
-	Laser *fire_laser();
-
-	void stop_all_sounds();
+	void render() const override;
+	bool intersects(const Collision::Parallelepiped &p) const override;
+	void collide() override;
+	void collide_with_laser() override;
+	void explode();
 
 private:
-	void play_sound(const String &s);
+	void play_sound();
 };

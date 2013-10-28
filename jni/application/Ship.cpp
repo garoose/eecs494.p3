@@ -104,8 +104,10 @@ void Ship::adjust_yaw(const float &theta) {
 }
 
 void Ship::step(const float &time_step) {
-	if (m_exploded)
+	if (m_exploded) {
+		create_body();
 		return;
+	}
 
 	if (m_exploding.seconds()) {
 		m_explosion->set_keyframe(m_exploding.seconds() * 80.0f);
@@ -115,7 +117,7 @@ void Ship::step(const float &time_step) {
 			m_exploding.stop();
 			m_exploding.set(0.0f);
 		}
-
+		create_body();
 		return;
 	}
 
@@ -124,7 +126,7 @@ void Ship::step(const float &time_step) {
 }
 
 void Ship::create_body() {
-	// Create to collision object
+	// Create the collision object
 	if (is_exploded() || is_exploding())
 		m_body = Parallelepiped();
 	else {
@@ -188,17 +190,17 @@ void Ship::explode() {
 	play_sound("explode");
 }
 
-bool Ship::intersects(const Ship &s) const {
-	if (is_exploding() || is_exploded() || s.is_exploding() || s.is_exploded())
-		return false;
-
-	return m_body.intersects(s.get_body());
+bool Ship::intersects(const Parallelepiped &s) const {
+	return m_body.intersects(s);
 }
 
 Laser *Ship::fire_laser() {
+	if (is_exploded() || is_exploding())
+		return nullptr;
+
 	if (laser_cooldown.seconds() == 0.0f) {
 		Vector3f endpt = Vector3f(1.0f, 1.0f, 1.0f);
-		Laser *l = new Laser(get_center() + get_forward() * m_size.x + get_up() * m_size.z, endpt, m_rotation);
+		Laser *l = new Laser(get_center() + get_forward() * m_size.x / 2.0f + get_up() * m_size.z, endpt, m_rotation);
 		play_sound("laser");
 		laser_cooldown.start();
 

@@ -2,41 +2,39 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using std::string;
 using std::cout; using std::endl;
+using std::vector;
 
 #include "Map.h"
 #include "Wall.h"
 #include "Floor1.h"
 #include "Ship.h"
+#include "Crate.h"
 #include "Finish_Line.h"
 
-using std::vector;
-
 Map::Map(const string &map_name_) {
-		/*list.push_back(new Wall(Point3f(-100.0f, 12.0f, -25.0f), Vector3f(600.0f, 5.0f, 60.0f))); //left side
-		list.push_back(new Wall(Point3f(-100.0f, 12.0f, -25.0f), Vector3f(660.0f, -60.0f, 5.0f))); //bottom
-		list.push_back(new Wall(Point3f(-100.0f, -48.0f, -25.0f), Vector3f(660.0f, 5.0f, 60.0f))); //right side
-		list.push_back(new Wall(Point3f(-100.0f, 12.0f, 35.0f), Vector3f(660.0f, -60.0f, 5.0f))); //top
+	list.push_back(new Wall(Point3f(-256.0f, -128.0f, 0.0f), Vector3f(0.5f, 1.0f, 1.0f), Quaternion(Global::pi_over_two, 0.0f, 0.0f)));
 
-		list.push_back(new Wall(Point3f(560.0f, -48.0f, -25.0f), Vector3f(5.0f, 260.0f, 60.0f))); //left side
-		list.push_back(new Wall(Point3f(560.0f, 12.0f, -25.0f), Vector3f(-60.0f, 200.0f, 5.0f))); //bottom
-		list.push_back(new Wall(Point3f(500.0f, 12.0f, -25.0f), Vector3f(5.0f, 200.0f, 60.0f))); //right side
-		list.push_back(new Wall(Point3f(560.0f, 12.0f, 35.0f), Vector3f(-60.0f, 260.0f, 5.0f))); //top
-
-		list.push_back(new Wall(Point3f(560.0f, 212.0f, 35.0f), Vector3f(5.0f, 120.0f, -400.0f))); //left side
-		list.push_back(new Wall(Point3f(560.0f, 212.0f, -25.0f), Vector3f(-60.0f, 5.0f, -400.0f))); //bottom
-		list.push_back(new Wall(Point3f(500.0f, 212.0f, 35.0f), Vector3f(5.0f, 120.0f, -400.0f))); //right side
-		list.push_back(new Wall(Point3f(560.0f, 272.0f, 35.0f), Vector3f(-60.0f, 5.0f, -400.0f), Quaternion(0.0f, 0.0f, 0.13f))); //top
-
-		list.push_back(new Wall(Point3f(560.0f, 212.0f, -365.0f), Vector3f(5.0f, 520.0f, -60.0f))); //left side
-		list.push_back(new Wall(Point3f(560.0f, 212.0f, -425.0f), Vector3f(-60.0f, 520.0f, 5.0f))); //bottom
-		list.push_back(new Wall(Point3f(500.0f, 212.0f, -365.0f), Vector3f(5.0f, 520.0f, -60.0f))); //right side
-		list.push_back(new Wall(Point3f(560.0f, 332.0f, -365.0f), Vector3f(-60.0f, 460.0f, 5.0f))); //top*/
+	list.push_back(new Wall(Point3f(-256.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
+	list.push_back(new Wall(Point3f(-256.0f, -125.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
+	list.push_back(new Floor1(Point3f(-256.0f, -125.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
+	list.push_back(new Floor1(Point3f(-256.0f, -125.0f, 125.0f), Vector3f(1.0f, 1.0f, 1.0f)));
 
 	list.push_back(new Wall(Point3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
-	list.push_back(new Floor1(Point3f(0.0f, 100.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
+	list.push_back(new Wall(Point3f(0.0f, -125.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
+	list.push_back(new Floor1(Point3f(0.0f, -125.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
+	list.push_back(new Floor1(Point3f(0.0f, -125.0f, 125.0f), Vector3f(1.0f, 1.0f, 1.0f)));
+
+	list.push_back(new Wall(Point3f(256.0f, 0.0f, 125.0f), Vector3f(1.0f, 1.0f, 1.0f), Quaternion(0.0f, Global::pi_over_two, 0.0f)));
+	list.push_back(new Wall(Point3f(256.0f, -125.0f, 125.0f), Vector3f(1.0f, 1.0f, 1.0f), Quaternion(0.0f, Global::pi_over_two, 0.0f)));
+	list.push_back(new Floor1(Point3f(251.0f, -125.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f), Quaternion(0.0f, Global::pi_over_two, 0.0f)));
+	list.push_back(new Floor1(Point3f(256.0f, -125.0f, 125.0f), Vector3f(0.5f, 1.0f, 1.0f)));
+	list.push_back(new Floor1(Point3f(390.0f, -125.0f, 125.0f), Vector3f(1.0f, 1.0f, 1.0f), Quaternion(0.0f, Global::pi_over_two, 0.0f)));
+
+	list.push_back(new Crate(Point3f(0.0f, -100.0f, 70.0f), Vector3f(10.0f, 10.0f, 10.0f)));
 }
 
 Map::~Map() {
@@ -47,6 +45,16 @@ Map::~Map() {
 
 		delete item;
 	}
+}
+
+void Map::reset() {
+	for (auto it = list.begin(); it != list.end(); ++it)
+		(*it)->reset();
+}
+
+void Map::step(const float &time_step) {
+	for (auto it = list.begin(); it != list.end(); ++it)
+		(*it)->step(time_step);
 }
 
 void Map::render() const {

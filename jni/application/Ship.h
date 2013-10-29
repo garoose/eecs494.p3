@@ -10,13 +10,14 @@ using namespace Zeni;
 class Ship {
 	Point3f m_reset_pos;
 	Chronometer<Time> laser_cooldown;
+	bool m_moved;
 
 	// Level 1/2
 	Point3f m_corner;
 	Quaternion m_rotation;
 
 	std::map<String, Sound_Source *> sounds;
-	int m_health;
+	float m_health;
 	bool m_exploded;
 	Chronometer<Time> m_exploding;
 
@@ -43,8 +44,8 @@ public:
 
 	~Ship();
 
-	int get_health() const { return m_health; }
-	bool is_exploding() const { return m_exploding.seconds(); }
+	const float &get_health() const { return m_health; }
+	bool is_exploding() const { return m_exploding.seconds() > 0.0f; }
 	bool is_exploded() const { return m_exploded; }
 
 	// Level 1
@@ -93,6 +94,11 @@ public:
 
 	void stop_all_sounds();
 
+	bool moved() const { return m_moved; }
+	void set_moved(bool m) { m_moved = m; }
+
 private:
-	void play_sound(const String &s);
+	void play_sound(const String &s, bool stop_current = true);
+	void stop_sound(const String &s);
+	bool can_collide() const { return (!is_exploding() && !is_exploded()); }
 };

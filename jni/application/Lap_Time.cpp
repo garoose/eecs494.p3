@@ -24,14 +24,10 @@ void Lap_Time::unpause() {
 }
 
 void Lap_Time::render() const {
-	Video &vr = get_Video();
-
 	Font &fr = get_Fonts()["title"];
 
 	char buffer[1000];
 	sprintf(buffer, "%.2f", m_time.seconds());
-
-	//String time_s = ftoa(m_time.seconds());
 
 	fr.render_text(
 		buffer,

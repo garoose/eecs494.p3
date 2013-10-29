@@ -18,7 +18,7 @@ protected:
 
 public:
 	Player(const Camera &camera_, const Vector3f &size_,
-		const float &max_speed_ = 7050.0f, const float &acceleration_ = 2.0f,
+		const float &max_speed_ = 20000.0f, const float &acceleration_ = 2.0f,
 		const Vector3f &camera_offset_ = Vector3f(45.0f, 0.0f, 14.0f));
 
 	// Level 1

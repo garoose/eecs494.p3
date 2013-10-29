@@ -49,4 +49,7 @@ HOWTO:  To convert between types, or to downmix to mono,
   <laser_recharge>
     <filepath>sfx/laser_recharge</filepath>
   </laser_recharge>
+  <engine>
+    <filepath>sfx/engine</filepath>
+  </engine>
 </Sounds>

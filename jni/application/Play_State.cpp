@@ -198,6 +198,9 @@ void Play_State::perform_logic() {
 	Vector3f forward_accel = (m_controls.forward - m_controls.back) * accel * forward;
 	Vector3f side_accel = (m_controls.left - m_controls.right) * accel * left;
 
+	// let the player know if acceleration was recieved
+	m_player.set_moved((forward_accel + side_accel).magnitude() ? true : false);
+
 	Vector3f velocity = prev_ship_velocity + forward_accel + side_accel;
 
 	/** Perform braking **/
@@ -205,10 +208,10 @@ void Play_State::perform_logic() {
 	velocity -= velocity * braking / 20.0f;
 
 	/** Don't go over max speed **/
-	float result_speed = velocity.magnitude2();
+	float result_speed = velocity.magnitude();
 	while (result_speed > m_player.get_max_speed()) {
 		velocity += velocity * -0.01f;
-		result_speed = velocity.magnitude2();
+		result_speed = velocity.magnitude();
 	}
 
 	/** Air resistance **/
@@ -242,9 +245,9 @@ void Play_State::perform_logic() {
 		partial_ship_step(time_step, y_vel);
 		partial_ship_step(time_step, z_vel);
 
-		partial_ship_pitch(time_step, m_controls.joy_y * 1.5f);
-		partial_ship_yaw(time_step, m_controls.joy_x * 1.5f);
-		partial_ship_roll(time_step, (m_controls.roll_right - m_controls.roll_left) * 1.5f);
+		partial_ship_pitch(time_step, m_controls.joy_y * 1.6f);
+		partial_ship_yaw(time_step, m_controls.joy_x * 2.2f);
+		partial_ship_roll(time_step, (m_controls.roll_right - m_controls.roll_left) * 1.7f);
 
 		//move enemy ships
 		m_enemy.step(time_step);
@@ -255,8 +258,8 @@ void Play_State::perform_logic() {
 			laser->step(time_step);
 
 			//collide lasers with map
-			Map_Object *colliding;
-			if ((colliding = m_map.intersects(laser->get_body()))) {
+			Map_Object *colliding = m_map.intersects(laser->get_body());
+			if (colliding) {
 				laser->collide();
 				colliding->collide_with_laser();
 			}
@@ -317,7 +320,16 @@ void Play_State::render_3d() const {
 
 	m_map.render();
 	m_finish.render();
+
+	Sprite sprite;
+	get_Textures().lend("SHIP_BAC.PNG", &sprite, true);
+	sprite.append_frame("ship_back_off");
+	sprite.append_frame("ship_back_on");
+	if (m_player.moved()) {
+		sprite.set_current_frame(1);
+	}
 	m_player.render();
+	sprite.set_current_frame(0);
 	m_enemy.render();
 
 	//render lasers
@@ -365,7 +377,7 @@ void Play_State::render_2d() const {
 		String msg = "noclip";
 		fr.render_text(
 			msg,
-			Point2f(get_Window().get_size().x / 2, 100.0f - 0.5f * fr.get_text_height()),
+			Point2f(float(get_Window().get_size().x / 2), 100.0f - (0.5f * fr.get_text_height())),
 			get_Colors()["title_text"],
 			ZENI_CENTER);
 	}

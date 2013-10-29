@@ -53,9 +53,18 @@ The following things are unsupported:
     <filepath>textures/floor1.png</filepath>
     <tile>1</tile>
   </FLOOR1.PNG>
+  <ship_back_off>
+      <filepath>textures/ship_back.png</filepath>
+      <tile>1</tile>
+  </ship_back_off>
+  <ship_back_on>
+      <filepath>textures/ship_back_on.png</filepath>
+      <tile>1</tile>
+  </ship_back_on>
   <SHIP_BAC.PNG>
-    <filepath>textures/ship_back.png</filepath>
-    <tile>1</tile>
+    <is_sprite>1</is_sprite>
+    <token>ship_back_off</token>
+    <token>ship_back_on</token>
   </SHIP_BAC.PNG>
   <SHIP_FRO.PNG>
     <filepath>textures/ship_front.png</filepath>

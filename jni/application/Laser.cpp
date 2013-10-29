@@ -31,7 +31,7 @@ Laser::Laser(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
 	const Quaternion &m_rotation_)
 	: Laser(m_corner_, m_scale_, m_rotation_, Vector3f())
 {
-	m_velocity = (m_rotation_ * LASER_DEFAULT_FORWARD_VECTOR) * 200.0f;
+	m_velocity = (m_rotation_ * LASER_DEFAULT_FORWARD_VECTOR) * 400.0f;
 }
 
 Laser::~Laser() {

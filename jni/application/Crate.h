@@ -14,7 +14,7 @@ class Crate : public Map_Object {
 	Point3f m_corner;
 	Quaternion m_rotation;
 
-	int m_health;
+	float m_health;
 	bool m_exploded;
 	Chronometer<Time> m_exploding;
 
@@ -40,8 +40,8 @@ public:
 	~Crate();
 
 	const std::string get_type() const override { return "Crate"; }
-	int get_health() const { return m_health; }
-	bool is_exploding() const { return m_exploding.seconds(); }
+	const float &get_health() const { return m_health; }
+	bool is_exploding() const { return m_exploding.seconds() > 0.0f; }
 	bool is_exploded() const { return m_exploded; }
 
 	// Level 1

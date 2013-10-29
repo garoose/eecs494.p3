@@ -112,14 +112,10 @@ void Crate::step(const float &time_step) {
 
 void Crate::create_body() {
 	// Create the collision object
-	if (is_exploded() || is_exploding())
-		m_body = Parallelepiped();
-	else {
 		m_body = Parallelepiped(m_corner,
 			m_rotation * m_size.get_i(),
 			m_rotation * m_size.get_j(),
 			m_rotation * m_size.get_k());
-	}
 
 	// Set sound source to center of the Crate
 	m_source->set_position(get_center());
@@ -145,6 +141,9 @@ void Crate::render() const {
 }
 
 bool Crate::intersects(const Collision::Parallelepiped &p) const {
+	if (is_exploding() || is_exploded())
+		return false;
+
 	return m_body.intersects(p);
 }
 

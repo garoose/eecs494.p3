@@ -16,7 +16,8 @@ Ship::Ship(const Point3f &m_corner_, const Vector3f &m_scale_,
 	m_acceleration(m_acceleration_),
 	m_reset_pos(m_corner_),
 	m_health(100.0f),
-	m_exploded(false)
+	m_exploded(false),
+	m_moved(false)
 {
 	if (!m_instance_count) {
 		m_model = new Model("models/ship.3ds");
@@ -31,6 +32,7 @@ Ship::Ship(const Point3f &m_corner_, const Vector3f &m_scale_,
 	sounds["collide"] = new Sound_Source(get_Sounds()["collide"]);
 	sounds["laser"] = new Sound_Source(get_Sounds()["retro_laser"]);
 	sounds["explode"] = new Sound_Source(get_Sounds()["explode"]);
+	sounds["engine"] = new Sound_Source(get_Sounds()["engine"]);
 
 	m_headlight.set_light_type(LIGHT_SPOT);
 	//m_headlight.set_spot_phi(Global::pi);
@@ -104,37 +106,29 @@ void Ship::adjust_yaw(const float &theta) {
 }
 
 void Ship::step(const float &time_step) {
-	if (m_exploded) {
-		create_body();
-		return;
+	if (m_exploding.seconds() > 2.0f) {
+		m_exploded = true;
+		m_exploding.stop();
+		m_exploding.set(0.0f);
 	}
-
-	if (m_exploding.seconds()) {
-		m_explosion->set_keyframe(m_exploding.seconds() * 80.0f);
-
-		if (m_exploding.seconds() > 2.0f) {
-			m_exploded = true;
-			m_exploding.stop();
-			m_exploding.set(0.0f);
-		}
-		create_body();
+	
+	if (is_exploded() || is_exploding())
 		return;
-	}
 
 	m_corner += time_step * m_velocity;
+	if (m_moved)
+		play_sound("engine", false);
+	else
+		stop_sound("engine");
 	create_body();
 }
 
 void Ship::create_body() {
 	// Create the collision object
-	if (is_exploded() || is_exploding())
-		m_body = Parallelepiped();
-	else {
-		m_body = Parallelepiped(m_corner,
-			m_rotation * m_size.get_i(),
-			m_rotation * m_size.get_j(),
-			m_rotation * m_size.get_k());
-	}
+	m_body = Parallelepiped(m_corner,
+		m_rotation * m_size.get_i(),
+		m_rotation * m_size.get_j(),
+		m_rotation * m_size.get_k());
 
 	// Set all sound sources to center of the ship
 	for (auto it = sounds.begin(); it != sounds.end(); ++it)
@@ -159,7 +153,9 @@ void Ship::render() const {
 	if (m_exploding.seconds() <= 0.1f)
 		m_model->render();
 
-	if (m_exploding.seconds()) {
+	if (is_exploding()) {
+		m_explosion->set_keyframe(m_exploding.seconds() * 80.0f);
+		m_explosion->set_translate(get_center());
 		m_explosion->render();
 	}
 }
@@ -188,9 +184,13 @@ void Ship::explode() {
 
 	stop_all_sounds();
 	play_sound("explode");
+	create_body();
 }
 
 bool Ship::intersects(const Parallelepiped &s) const {
+	if (!can_collide())
+		return false;
+
 	return m_body.intersects(s);
 }
 
@@ -207,7 +207,7 @@ Laser *Ship::fire_laser() {
 		return l;
 	}
 	else {
-		if (laser_cooldown.seconds() > 1.0f) {
+		if (laser_cooldown.seconds() > 0.5f) {
 			laser_cooldown.stop();
 			laser_cooldown.set(0.0f);
 		}
@@ -216,13 +216,22 @@ Laser *Ship::fire_laser() {
 	}
 }
 
-void Ship::play_sound(const String &s) {
+void Ship::play_sound(const String &s, bool stop_current) {
 	Sound_Source *m_source = sounds.find(s)->second;
 
-	if (m_source->is_playing())
+	if (m_source->is_playing()) {
+		if (!stop_current)
+			return;
 		m_source->stop();
+	}
 
 	m_source->play();
+}
+
+void Ship::stop_sound(const String &s) {
+	Sound_Source *m_source = sounds.find(s)->second;
+
+	m_source->stop();
 }
 
 void Ship::stop_all_sounds() {

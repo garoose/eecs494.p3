@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using std::string;
 using std::cout; using std::endl;
@@ -72,6 +73,32 @@ Map_Object *Map::intersects(const Collision::Parallelepiped &p) const {
 	return nullptr;
 }
 
+Map_Object *Map::get_next(const Map_Object *o) const {
+	if (o) {
+		auto it = std::find(list.begin(), list.end(), o);
+		if (it == list.end())
+			return nullptr;
+		auto next = it++;
+		if (next != list.end())
+			return (*next);
+	}
+
+	return (*list.begin());
+}
+
+Map_Object *Map::get_prev(const Map_Object *o) const {
+	if (o) {
+		auto it = std::find(list.begin(), list.end(), o);
+		if (it == list.end())
+			return nullptr;
+		auto prev = it--;
+		if (prev != list.end())
+			return (*prev);
+	}
+
+	return (*list.begin());
+}
+
 void Map::write_to_file(const string &fname) {
 	std::ofstream file(fname);
 	string line;
@@ -80,7 +107,13 @@ void Map::write_to_file(const string &fname) {
 		auto wall = (*it);
 		auto corner = wall->get_corner();
 		auto scale = wall->get_scale();
-		auto rotation = wall->get_rotation();
-		file << "Wall " << corner.x << " " << corner.y << " " << corner.z << " " << scale.x << " " << scale.y << " " << scale.z << " ";
+		auto rotation = wall->get_rotation().get_rotation();
+		auto axis = rotation.first;
+		auto angle = rotation.second;
+		file << "Wall " << corner.x << " " << corner.y << " " << corner.z
+			<< " " << scale.x << " " << scale.y << " " << scale.z << " "
+			<< axis.x << " " << axis.y << " " << axis.z << " " << angle;
 	}
+
+	file.close();
 }

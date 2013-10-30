@@ -35,7 +35,13 @@ public:
 	const Point3f &get_corner() const override { return m_corner; }
 	const Vector3f &get_scale() const override { return m_scale; }
 	const Quaternion &get_rotation() const override { return m_rotation; }
+	const Point3f get_center() const { return m_corner + (m_rotation * m_size) / 2.0f; }
 
+	void set_translate(const Point3f &position) override { m_corner = position; }
+	void set_scale(const Vector3f &scale) override { m_scale = scale; }
+	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.Axis_Angle(ray, angle); };
+
+	void step(const float &time_step) override;
 	void render() const override;
 	bool intersects(const Collision::Parallelepiped &p) const override;
 	void collide() override;

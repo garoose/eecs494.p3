@@ -46,6 +46,10 @@ void Player::adjust_yaw(const float &theta) {
 	Ship::adjust_yaw(theta);
 }
 
+void Player::reverse_camera() {
+	m_camera.adjust_yaw(Global::pi);
+}
+
 // Level 3
 void Player::step(const float &time_step) {
 	Ship::step(time_step);

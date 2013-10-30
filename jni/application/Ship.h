@@ -31,6 +31,7 @@ class Ship {
 	float m_max_speed;
 	float m_acceleration;
 	Vector3f m_velocity;
+	Vector3f m_prev_velocity;
 
 	// Level 4
 	// Controls are external to Ship
@@ -77,9 +78,12 @@ public:
 	const Zeni::Collision::Parallelepiped & get_body() const { return m_body; }
 	const Light &get_headlight() const { return m_headlight; }
 
-	const Zeni::Vector3f & get_velocity() const { return m_velocity; }
-	void set_velocity(const Zeni::Vector3f &velocity_) { m_velocity = velocity_; }
-	void add_velocity(const Zeni::Vector3f &velocity_) { m_velocity += velocity_; }
+	const Vector3f & get_velocity() const { return m_velocity; }
+	const Vector3f &get_prev_velocity() const { return m_prev_velocity; }
+	void set_velocity(const Vector3f &velocity_) { m_velocity = velocity_; }
+	void add_velocity(const Vector3f &velocity_) { m_velocity += velocity_; }
+	void add_prev_velocity(const Vector3f &velocity_) { m_prev_velocity += velocity_; }
+	void clear_prev_velocity() { m_prev_velocity = Vector3f(); }
 
 	void step(const float &time_step);
 

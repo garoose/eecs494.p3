@@ -6,6 +6,7 @@
 
 #include "Map.h"
 #include "Play_State.h"
+#include "Editor.h"
 
 using namespace Zeni;
 
@@ -147,6 +148,10 @@ public:
 		Edit_Button()
 			: My_Button(Point2f(700.0f, 500.0f), button_size, "Edit")
 		{}
+
+		void on_accept() override {
+			get_Game().push_state(new Editor(*selected));
+		}
 
 	} edit_button;
 

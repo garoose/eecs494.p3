@@ -73,6 +73,10 @@ public:
 	void set_velocity(const Zeni::Vector3f &velocity_) { m_velocity = velocity_; }
 	void add_velocity(const Zeni::Vector3f &velocity_) { m_velocity += velocity_; }
 
+	void set_translate(const Point3f &position) override { m_corner = position; }
+	void set_scale(const Vector3f &scale) override { m_scale = scale; }
+	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.Axis_Angle(ray, angle); };
+
 	void step(const float &time_step);
 
 	void render() const override;

@@ -13,15 +13,38 @@
 
 using namespace Zeni;
 
+enum Event_Types {
+	E_EXIT = 1,
+	E_LEFTRIGHT,
+	E_FORWARDBACK,
+	E_YAW,
+	E_PITCH,
+	E_BRAKE,
+	E_SHOOT,
+	E_ROLLLEFT,
+	E_ROLLRIGHT,
+	E_RESET,
+	E_LOOKBACK,
+	E_NOCLIP,
+	E_W,
+	E_A,
+	E_S,
+	E_D,
+	E_Q,
+	E_E,
+	E_Z,
+	E_X,
+	E_C,
+	E_RIGHT,
+	E_LEFT,
+};
+
 class Play_State : public Gamestate_II {
 private:
 	Player m_player;
 	Ship m_enemy;
-	Map m_map;
 	Lap_Time m_time;
 	Finish_Line m_finish;
-
-	Vector3f prev_ship_velocity;
 
 	std::vector<Laser *> lasers;
 
@@ -76,6 +99,8 @@ private:
 	bool m_noclip;
 
 protected:
+	Map m_map;
+	virtual void laser_collide_with_object(Map_Object *colliding);
 	void render_3d() const;
 	void render_2d() const;
 
@@ -87,8 +112,6 @@ public:
 	void on_cover();
 
 	void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action);
-	void on_mouse_motion(const SDL_MouseMotionEvent &event);
-	void on_key(const SDL_KeyboardEvent &event);
 
 	void reset();
 

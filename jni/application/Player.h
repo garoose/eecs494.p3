@@ -32,6 +32,8 @@ public:
 	void adjust_roll(const float &rho);
 	void adjust_yaw(const float &theta);
 
+	void reverse_camera();
+
 	// Level 3
 	void step(const float &time_step);
 	void render() const;

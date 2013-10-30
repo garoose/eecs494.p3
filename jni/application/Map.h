@@ -24,5 +24,8 @@ public:
 	Map_Object *intersects(const Collision::Parallelepiped &p) const;
 	Map_Object *intersects(const Collision::Capsule &c) const;
 
+	Map_Object *get_next(const Map_Object *o) const;
+	Map_Object *get_prev(const Map_Object *o) const;
+
 	void write_to_file(const std::string &fname);
 };

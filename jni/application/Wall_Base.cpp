@@ -53,6 +53,10 @@ Wall_Base::~Wall_Base() {
 	}
 }
 
+void Wall_Base::step(const float &time_step) {
+	create_body();
+}
+
 void Wall_Base::render() const {
 	const std::pair<Vector3f, float> rotation = m_rotation.get_rotation();
 

@@ -51,8 +51,13 @@ public:
 	virtual const Point3f &get_corner() const override { return m_corner; }
 	virtual const Vector3f &get_scale() const override { return m_scale; }
 	virtual const Quaternion &get_rotation() const override { return m_rotation; }
+	const Point3f get_center() const { return m_corner + (m_rotation * m_size) / 2.0f; }
 	Vector3f get_forward() const;
 	Vector3f get_up() const;
+
+	void set_translate(const Point3f &position) override { m_corner = position; }
+	void set_scale(const Vector3f &scale) override { m_scale = scale; }
+	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.Axis_Angle(ray, angle); };
 
 	// Level 2
 	void set_position(const Point3f &position);

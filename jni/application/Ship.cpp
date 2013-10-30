@@ -85,6 +85,7 @@ void Ship::reset() {
 	m_exploded = false;
 	m_exploding.stop();
 	m_exploding.set(0.0f);
+	m_prev_velocity = Vector3f();
 }
 
 void Ship::adjust_pitch(const float &phi) {
@@ -116,10 +117,12 @@ void Ship::step(const float &time_step) {
 		return;
 
 	m_corner += time_step * m_velocity;
+
 	if (m_moved)
 		play_sound("engine", false);
 	else
 		stop_sound("engine");
+
 	create_body();
 }
 
@@ -161,8 +164,12 @@ void Ship::render() const {
 }
 
 void Ship::collide() {
+	if (m_health <= 0.0f)
+		return;
+
 	play_sound("collide");
 
+	//m_health -= 100.0f * (m_velocity.magnitude() / m_max_speed);
 	m_health -= 20.0f;
 
 	if (m_health <= 0.0f) {
@@ -183,7 +190,7 @@ void Ship::explode() {
 	m_explosion->set_translate(get_center());
 
 	stop_all_sounds();
-	play_sound("explode");
+	play_sound("explode", false);
 	create_body();
 }
 

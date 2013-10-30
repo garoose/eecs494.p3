@@ -19,6 +19,11 @@ public:
 	virtual const Point3f &get_corner() const = 0;
 	virtual const Vector3f &get_scale() const = 0;
 	virtual const Quaternion &get_rotation() const = 0;
+	virtual const Point3f get_center() const = 0;
+
+	virtual void set_translate(const Point3f &position) = 0;
+	virtual void set_scale(const Vector3f &scale) = 0;
+	virtual void set_rotate(const float &angle, const Vector3f &ray) = 0;
 
 	virtual void step(const float &) {}
 	virtual void render() const = 0;

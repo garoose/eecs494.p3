@@ -15,22 +15,32 @@ Play_State::Play_State(const string &map_name_)
 {
 	set_pausable(true);
 
-	prev_ship_velocity = Vector3f();
-
 	/*** Joyfun ***/
 
-	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), 1);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), 1);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTX /* left-right */), 2);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTY /* forward-backward */), 3);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTX /* yaw */), 4);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTY /* pitch */), 5);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERLEFT /* brake */), 6);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERRIGHT /* shoot */), 7);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_LEFTSHOULDER /* rotate left */), 8);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER /* rotate right */), 9);
-	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START /* reset */), 10);
-	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_F1), 11 /* noclip */);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), E_EXIT);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), E_EXIT);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTX /* left-right */), E_LEFTRIGHT);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTY /* forward-backward */), E_FORWARDBACK);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTX /* yaw */), E_YAW);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_RIGHTY /* pitch */), E_PITCH);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERLEFT /* brake */), E_BRAKE);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_TRIGGERRIGHT /* shoot */), E_SHOOT);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_LEFTSHOULDER /* rotate left */), E_ROLLLEFT);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER /* rotate right */), E_ROLLRIGHT);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START /* reset */), E_RESET);
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_B /* look back */), E_LOOKBACK);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_F1 /* noclip */), E_NOCLIP);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_w), E_W);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_a), E_A);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_s), E_S);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_d), E_D);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_q), E_Q);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_e), E_E);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_z), E_Z);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_x), E_X);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_c), E_C);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), E_RIGHT);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), E_LEFT);
 }
 
 void Play_State::on_push() {
@@ -57,53 +67,58 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 		get_Game().write_to_console(ulltoa(id.which) + '.' + ulltoa(id.subid) + ':' + ulltoa(action));
 
 	switch (action) {
-	case 1: // back
+	case E_EXIT: // back
 		if (confidence == 1.0f) {
 			Game &game = get_Game();
 			game.push_state(new Popup_Menu_State);
 		}
 		break;
 
-	case 2: // left joy x
+	case E_LEFTRIGHT: // left joy x
 		m_controls.right = m_controls.left = 0.0f;
 		m_controls.right = confidence;
 		break;
 
-	case 3: // lefy joy y
+	case E_FORWARDBACK: // lefy joy y
 		m_controls.forward = -confidence;
 		break;
 
-	case 4: // right joy x
+	case E_YAW: // right joy x
 		m_controls.joy_x = -confidence;
 		break;
 
-	case 5: // right joy y
+	case E_PITCH: // right joy y
 		m_controls.joy_y = confidence;
 		break;
 
-	case 6: // left trigger
+	case E_BRAKE: // left trigger
 		m_controls.brake = confidence;
 		break;
 
-	case 7: // right trigger
+	case E_SHOOT: // right trigger
 		//shoot a laser
 		m_controls.shoot = confidence > 0.5f ? true : false;
 		break;
 
-	case 8: // left bumper
+	case E_ROLLLEFT: // left bumper
 		m_controls.roll_left = confidence == 1.0f ? true : false;
 		break;
 
-	case 9: // right bumper
+	case E_ROLLRIGHT: // right bumper
 		m_controls.roll_right = confidence == 1.0f ? true : false;
 		break;
 
-	case 10: // start
+	case E_RESET: // start
 		if (confidence == 1.0f)  {
 			reset();
 		}
 		break;
-	case 11: // noclip
+
+	case E_LOOKBACK:
+		m_player.reverse_camera();
+		break;
+
+	case E_NOCLIP: // noclip
 		if (confidence == 1.0f)
 			m_noclip = !m_noclip;
 		break;
@@ -116,50 +131,12 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 	}
 }
 
-void Play_State::on_mouse_motion(const SDL_MouseMotionEvent &event) {
-	m_player.adjust_pitch(event.yrel / 500.0f);
-	m_player.adjust_yaw(-event.xrel / 500.0f);
-}
-
-void Play_State::on_key(const SDL_KeyboardEvent &event) {
-	switch (event.keysym.sym) {
-	case SDLK_a:
-		m_controls.left = event.type == SDL_KEYDOWN ? 1.0f : 0.0f;
-		break;
-
-	case SDLK_d:
-		m_controls.right = event.type == SDL_KEYDOWN ? 1.0f : 0.0f;
-		break;
-
-	case SDLK_w:
-		m_controls.forward = event.type == SDL_KEYDOWN ? 1.0f : 0.0f;
-		break;
-
-	case SDLK_s:
-		m_controls.back = event.type == SDL_KEYDOWN ? 1.0f : 0.0f;
-		break;
-
-	case SDLK_q:
-		m_controls.roll_left = event.type == SDL_KEYDOWN;
-		break;
-
-	case SDLK_e:
-		m_controls.roll_right = event.type == SDL_KEYDOWN;
-		break;
-
-	default:
-		Gamestate_Base::on_key(event);
-		break;
-	}
-}
-
 void Play_State::reset() {
 	m_map.reset();
 	m_player.reset();
 	m_enemy.reset();
 	m_time.reset();
 	m_finish.reset();
-	prev_ship_velocity = Vector3f();
 	for (auto it = lasers.begin(); it != lasers.end();) {
 		auto laser = (*it);
 		lasers.erase(it);
@@ -190,8 +167,8 @@ void Play_State::perform_logic() {
 	}
 
 	/** Get forward and left vectors in the XYZ-plane **/
-	const Vector3f forward = m_player.get_camera().get_forward().normalized();
-	const Vector3f left = m_player.get_camera().get_left().normalized();
+	const Vector3f forward = m_player.get_forward().normalized();
+	const Vector3f left = m_player.get_left().normalized();
 
 	/** Find change in acceleration **/
 	const float &accel = m_player.get_acceleration();
@@ -201,7 +178,7 @@ void Play_State::perform_logic() {
 	// let the player know if acceleration was recieved
 	m_player.set_moved((forward_accel + side_accel).magnitude() ? true : false);
 
-	Vector3f velocity = prev_ship_velocity + forward_accel + side_accel;
+	Vector3f velocity = m_player.get_prev_velocity() + forward_accel + side_accel;
 
 	/** Perform braking **/
 	const float &braking = m_controls.brake;
@@ -215,9 +192,9 @@ void Play_State::perform_logic() {
 	}
 
 	/** Air resistance **/
-	velocity += prev_ship_velocity * -0.007f;
+	velocity += m_player.get_prev_velocity() * -0.007f;
 
-	prev_ship_velocity = Vector3f();
+	m_player.clear_prev_velocity();
 
 	/** Get velocity vector split into a number of axes **/
 	const Vector3f x_vel = velocity.get_i();
@@ -261,7 +238,7 @@ void Play_State::perform_logic() {
 			Map_Object *colliding = m_map.intersects(laser->get_body());
 			if (colliding) {
 				laser->collide();
-				colliding->collide_with_laser();
+				laser_collide_with_object(colliding);
 			}
 
 			//collide lasers with ships
@@ -299,6 +276,10 @@ void Play_State::render_plane(const Point3f &top_left, const Point3f &bottom_rig
 	Quadrilateral<Vertex3f_Color> q(p0, p1, p2, p3);
 
 	vr.render(q);
+}
+
+void Play_State::laser_collide_with_object(Map_Object *colliding) {
+	colliding->collide_with_laser();
 }
 
 void Play_State::render() {
@@ -415,10 +396,10 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 
 		m_player.set_position(backup_position);
 		// figure out bounce vector
-		prev_ship_velocity += (velocity * bounce);
+		m_player.add_prev_velocity(velocity * bounce);
 	}
 	else {
-		prev_ship_velocity += velocity;
+		m_player.add_prev_velocity(velocity);
 	}
 
 	bool was_crossed = m_finish.crossed();

@@ -40,7 +40,9 @@ private:
 
     Zeni::Font &fr = get_Fonts()["title"];
 
-    fr.render_text(
+	render_image("instr", Point2f(), Point2f(get_Window().get_width() / 2.0f, get_Window().get_height()));
+
+    /*fr.render_text(
 #if defined(_WINDOWS)
                    "ALT+F4"
 #elif defined(_MACOSX)
@@ -51,7 +53,7 @@ private:
                            " to Quit",
                    Point2f(400.0f, 300.0f - 0.5f * fr.get_text_height()),
                    get_Colors()["title_text"],
-                   ZENI_CENTER);
+                   ZENI_CENTER);*/
   }
 };
 

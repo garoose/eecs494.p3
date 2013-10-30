@@ -1,8 +1,11 @@
 #include "Player.h"
 
+using namespace Zeni::Collision;
+
 Player::Player(const Camera &camera_, const Vector3f &size_, const float &max_speed_, const float &acceleration_, const Vector3f &camera_offset_)
 	: m_camera(camera_),
 	m_camera_offset(camera_offset_),
+	m_camera_offset_max(camera_offset_),
 	Ship(camera_.position, size_, max_speed_, acceleration_)
 {
 	m_camera.fov_rad = Zeni::Global::pi / 3.0f;
@@ -20,6 +23,12 @@ void Player::set_position(const Point3f &position) {
 	_set_position();
 }
 
+void Player::adjust_camera_offset(const Vector3f &delta) {
+	m_camera_offset += delta;
+	if (m_camera_offset.magnitude() > m_camera_offset_max.magnitude())
+		m_camera_offset = m_camera_offset_max;
+}
+
 void Player::reset() {
 	Ship::reset();
 
@@ -29,21 +38,24 @@ void Player::reset() {
 }
 
 void Player::adjust_pitch(const float &phi) {
-	m_camera.adjust_pitch(phi);
-
 	Ship::adjust_pitch(phi);
+
+	m_camera.adjust_pitch(phi);
+	_set_position();
 }
 
 void Player::adjust_roll(const float &rho) {
-	m_camera.adjust_roll(rho);
-
 	Ship::adjust_roll(rho);
+
+	m_camera.adjust_roll(rho);
+	_set_position();
 }
 
 void Player::adjust_yaw(const float &theta) {
-	m_camera.adjust_yaw(theta);
-
 	Ship::adjust_yaw(theta);
+
+	m_camera.adjust_yaw(theta);
+	_set_position();
 }
 
 void Player::reverse_camera() {
@@ -65,6 +77,12 @@ void Player::step(const float &time_step) {
 
 void Player::create_body() {
 	Ship::create_body();
+
+	// Create the camera collision object
+	m_camera_body = Parallelepiped(m_camera.position,
+		m_camera.get_forward(),
+		m_camera.get_left(),
+		m_camera.get_up());
 
 	Sound &sr = get_Sound();
 

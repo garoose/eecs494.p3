@@ -9,11 +9,15 @@ Play_State::Play_State(const string &map_name_)
 	: m_map(map_name_),
 	m_moved(false),
 	m_noclip(false),
-	m_player(Camera(Point3f(-100.0f, -100.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(1.0f, 1.0f, 1.0f)),
-	m_enemy(Point3f(20.0f, -100.0f, 30.0f), Vector3f(1.0f, 1.0f, 1.0f), 100.0f, 1.0f),
+	m_player(Camera(Point3f(-100.0f, -80.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(1.0f, 1.0f, 1.0f)),
+	m_enemy(Point3f(20.0f, -80.0f, 30.0f), Vector3f(1.0f, 1.0f, 1.0f), 100.0f, 1.0f),
 	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(-60.0f, -5.0f, -60.0f))
 {
 	set_pausable(true);
+
+	m_dir_light.set_light_type(LIGHT_DIRECTIONAL);
+	m_dir_light.diffuse = Color(1.0f, 0.4f, 0.4f, 0.f);
+	m_dir_light.specular = Color(1.0f, 0.4f, 0.4f, 0.4f);
 
 	/*** Joyfun ***/
 
@@ -139,7 +143,7 @@ void Play_State::reset() {
 	m_finish.reset();
 	for (auto it = lasers.begin(); it != lasers.end();) {
 		auto laser = (*it);
-		lasers.erase(it);
+		it = lasers.erase(it);
 		delete laser;
 	}
 }
@@ -295,9 +299,12 @@ void Play_State::render_3d() const {
 
 	// Lighting
 	vr.set_lighting(true);
-	//r.set_ambient_lighting(Color(1.0f, 0.0f, 0.0f, 0.0f));
-	vr.set_ambient_lighting(Color(1.0f, 0.1f, 0.1f, 0.1f));
-	vr.set_Light(0, m_player.get_headlight());
+	vr.set_ambient_lighting(Color(1.0f, 0.0f, 0.0f, 0.0f));
+	//vr.set_ambient_lighting(Color(1.0f, 0.1f, 0.1f, 0.1f));
+	//vr.set_Light(0, m_dir_light);
+	vr.set_Light(1, m_player.get_headlight());
+	vr.set_Light(2, m_enemy.get_headlight());
+	
 
 	m_map.render();
 	m_finish.render();
@@ -372,7 +379,7 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 	m_player.set_velocity(velocity);
 	m_player.step(time_step);
 
-	/** If collision with the map has occurred, roll things back **/
+	/** Collide with the map **/
 	Map_Object *colliding = m_map.intersects(m_player.get_body());
 	if (!m_noclip && colliding) {
 		colliding->collide();
@@ -380,10 +387,17 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 		bounce = -1.0f;
 	}
 
-	//collide with other ships
+	/** collide with other ships **/
 	if (!m_noclip && m_enemy.intersects(m_player.get_body())) {
 		has_collided = true;
 		bounce = -1.0f;
+	}
+
+	/** collide camera with walls **/
+	if (m_map.intersects(m_player.get_camera_body())) {
+		m_player.adjust_camera_offset(Vector3f(-1.0f, 0.0f, 0.0f));
+	} else {
+		m_player.adjust_camera_offset(Vector3f(1.0f, 0.0f, 0.0f));
 	}
 	
 	/** If collision has occurred, play a sound and roll things back **/

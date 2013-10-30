@@ -41,6 +41,7 @@ enum Event_Types {
 
 class Play_State : public Gamestate_II {
 private:
+	Light m_dir_light;
 	Player m_player;
 	Ship m_enemy;
 	Lap_Time m_time;

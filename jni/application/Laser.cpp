@@ -6,7 +6,7 @@ using namespace Zeni::Collision;
 #define LASER_DEFAULT_FORWARD_VECTOR       (Vector3f(1.0f, 0.0f, 0.0f))
 #define LASER_DEFAULT_UP_VECTOR            (Vector3f(0.0f, 0.0f, 1.0f))
 
-Laser::Laser(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
+Laser::Laser(const Point3f &m_corner_, const Vector3f &m_scale_,
 	const Quaternion &m_rotation_, const Vector3f &m_velocity_)
 	: m_source(new Sound_Source(get_Sounds()["laser_strike"])),
 	m_corner(m_corner_),
@@ -27,11 +27,9 @@ Laser::Laser(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
 	create_body();
 }
 
-Laser::Laser(const Point3f &m_corner_, const Zeni::Vector3f &m_scale_,
-	const Quaternion &m_rotation_)
-	: Laser(m_corner_, m_scale_, m_rotation_, Vector3f())
+Laser::Laser(const Point3f &m_corner_, const Vector3f &m_scale_, const Quaternion &m_rotation_)
 {
-	m_velocity = (m_rotation_ * LASER_DEFAULT_FORWARD_VECTOR) * 400.0f;
+	Laser(m_corner_, m_scale_, m_rotation_, (m_rotation_ * LASER_DEFAULT_FORWARD_VECTOR) * 400.0f);
 }
 
 Laser::~Laser() {
@@ -72,7 +70,7 @@ void Laser::create_body() {
 			m_rotation * m_size.get_k());
 	}
 
-	m_source->set_position(m_corner + m_rotation * m_scale / 2.0f);
+	m_source->set_position(get_center());
 }
 
 void Laser::collide() {

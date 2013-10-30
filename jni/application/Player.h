@@ -9,7 +9,10 @@ using namespace Zeni;
 class Player : public Ship {
 	Camera m_camera;
 	Vector3f m_camera_offset;
+	Vector3f m_camera_offset_max;
 	Light m_light;
+
+	Collision::Parallelepiped m_camera_body; // collision
 
 	void _set_position();
 
@@ -23,9 +26,11 @@ public:
 
 	// Level 1
 	const Zeni::Camera & get_camera() const { return m_camera; }
+	const Collision::Parallelepiped &get_camera_body() { return m_camera_body; }
 
 	// Level 2
 	void set_position(const Zeni::Point3f &position);
+	void adjust_camera_offset(const Vector3f &delta);
 	void reset() override;
 
 	void adjust_pitch(const float &phi);

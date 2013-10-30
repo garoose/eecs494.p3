@@ -13,7 +13,7 @@ class Ship {
 	bool m_moved;
 
 	// Level 1/2
-	Point3f m_corner;
+	Point3f m_center;
 	Quaternion m_rotation;
 
 	std::map<String, Sound_Source *> sounds;
@@ -54,10 +54,11 @@ public:
 	static Model *m_explosion;
 	static unsigned long m_instance_count;
 
-	const Point3f &get_position() const { return m_corner;  }
+	const Point3f &get_position() const { return m_center;  }
 	const Vector3f &get_size() const { return m_size; }
 	const Quaternion &get_orientation() const { return m_rotation;  }
-	const Point3f get_center() const { return m_corner + (m_rotation * m_size) / 2.0f; }
+	const Point3f get_center() const { return m_center; }
+	const Point3f get_corner() const { return m_center - (m_rotation * m_size) / 2.0f; }
 
 	Vector3f get_forward() const;
 	Vector3f get_up() const;

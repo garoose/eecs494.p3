@@ -8,19 +8,19 @@ using namespace Zeni::Collision;
 #define SHIP_DEFAULT_UP_VECTOR            (Vector3f(0.0f, 0.0f, 1.0f))
 #define SHIP_DEFAULT_LEFT_VECTOR          (Vector3f(0.0f, 1.0f, 0.0f))
 
-Ship::Ship(const Point3f &m_corner_, const Vector3f &m_scale_,
+Ship::Ship(const Point3f &m_center_, const Vector3f &m_scale_,
 	const float &m_max_speed_, const float &m_acceleration_)
-	: m_corner(m_corner_),
+	: m_center(m_center_),
 	m_scale(m_scale_),
 	m_max_speed(m_max_speed_),
 	m_acceleration(m_acceleration_),
-	m_reset_pos(m_corner_),
+	m_reset_pos(m_center_),
 	m_health(100.0f),
 	m_exploded(false),
 	m_moved(false)
 {
 	if (!m_instance_count) {
-		m_model = new Model("models/ship.3ds");
+		m_model = new Model("models/ship_centered.3ds");
 		m_explosion = new Model("models/explosion.3ds");
 	}
 	++m_instance_count;
@@ -35,11 +35,11 @@ Ship::Ship(const Point3f &m_corner_, const Vector3f &m_scale_,
 	sounds["engine"] = new Sound_Source(get_Sounds()["engine"]);
 
 	m_headlight.set_light_type(LIGHT_SPOT);
-	//m_headlight.set_spot_phi(Global::pi);
-	//m_headlight.set_spot_theta(Global::pi);
+	m_headlight.set_spot_phi(Global::pi);
+	m_headlight.set_spot_theta(Global::pi_over_two);
 	m_headlight.diffuse = Color(1.0f, 0.8f, 0.8f, 0.8f);
 	m_headlight.specular = Color(1.0f, 0.8f, 0.8f, 0.8f);
-	//m_headlight.linear_attenuation = 0.001f;
+	m_headlight.linear_attenuation = 0.001f;
 	//m_headlight.quadratic_attenuation = 0.000001f;
 
 	create_body();
@@ -73,12 +73,12 @@ Vector3f Ship::get_left() const {
 
 // Level 2
 void Ship::set_position(const Point3f &position) {
-	m_corner = position;
+	m_center = position;
 	create_body();
 }
 
 void Ship::reset() {
-	m_corner = m_reset_pos;
+	m_center = m_reset_pos;
 	m_rotation = Quaternion();
 	m_velocity = Vector3f();
 	m_health = 100.0f;
@@ -91,19 +91,25 @@ void Ship::reset() {
 void Ship::adjust_pitch(const float &phi) {
 	if (m_exploding.seconds())
 		return;
+
 	m_rotation *= Quaternion(0.0f, phi, 0.0f, 0.0f);
+	m_prev_velocity = Quaternion(0.0f, -phi, 0.0f, 0.0f) * m_prev_velocity;
 }
 
 void Ship::adjust_roll(const float &rho) {
 	if (m_exploding.seconds())
 		return;
+
 	m_rotation *= Quaternion(0.0f, 0.0f, rho, 0.0f);
+	m_prev_velocity = Quaternion(0.0f, 0.0f, rho, 0.0f) * m_prev_velocity;
 }
 
 void Ship::adjust_yaw(const float &theta) {
 	if (m_exploding.seconds())
 		return;
+
 	m_rotation *= Quaternion(theta, 0.0f, 0.0f, 0.0f);
+	m_prev_velocity = Quaternion(theta, 0.0f, 0.0f, 0.0f) * m_prev_velocity;
 }
 
 void Ship::step(const float &time_step) {
@@ -116,7 +122,7 @@ void Ship::step(const float &time_step) {
 	if (is_exploded() || is_exploding())
 		return;
 
-	m_corner += time_step * m_velocity;
+	m_center += time_step * m_velocity;
 
 	if (m_moved)
 		play_sound("engine", false);
@@ -128,7 +134,7 @@ void Ship::step(const float &time_step) {
 
 void Ship::create_body() {
 	// Create the collision object
-	m_body = Parallelepiped(m_corner,
+	m_body = Parallelepiped(get_corner(),
 		m_rotation * m_size.get_i(),
 		m_rotation * m_size.get_j(),
 		m_rotation * m_size.get_k());
@@ -138,7 +144,7 @@ void Ship::create_body() {
 		it->second->set_position(get_center());
 
 	// Adjust the headlight to be behind and facing forward
-	m_headlight.position = get_center() - (get_forward().normalize() * 100.0f);
+	m_headlight.position = get_center() + (get_forward().normalize() * (-m_size.x));
 	m_headlight.spot_direction = get_forward();
 }
 
@@ -149,7 +155,7 @@ void Ship::render() const {
 	// Position and render the ship model
 	auto rotation = m_rotation.get_rotation();
 
-	m_model->set_translate(m_corner);
+	m_model->set_translate(m_center);
 	m_model->set_scale(m_scale);
 	m_model->set_rotate(rotation.second, rotation.first);
 
@@ -207,7 +213,9 @@ Laser *Ship::fire_laser() {
 
 	if (laser_cooldown.seconds() == 0.0f) {
 		Vector3f endpt = Vector3f(1.0f, 1.0f, 1.0f);
-		Laser *l = new Laser(get_center() + get_forward() * m_size.x / 2.0f + get_up() * m_size.z, endpt, m_rotation);
+		Point3f pos = get_center() + get_forward() * (get_size().x / 2.0f) + get_up() * get_size().z;
+		Vector3f vel = get_forward() * 400.0f;
+		Laser *l = new Laser(pos, endpt, m_rotation, vel);
 		play_sound("laser");
 		laser_cooldown.start();
 

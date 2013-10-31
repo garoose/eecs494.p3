@@ -18,7 +18,7 @@ public:
 	{
 	}
 
-	const std::string get_type() const override { return "Wall"; }
+	const std::string get_type() const override { return "Floor1"; }
 
 private:
 };

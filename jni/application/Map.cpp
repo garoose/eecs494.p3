@@ -118,15 +118,15 @@ void Map::write_to_file(const string &fname) {
 	string line;
 
 	for (auto it = list.begin(); it != list.end(); ++it) {
-		auto wall = (*it);
-		auto corner = wall->get_corner();
-		auto scale = wall->get_scale();
-		auto rotation = wall->get_rotation().get_rotation();
+		auto o = (*it);
+		auto corner = o->get_corner();
+		auto scale = o->get_scale();
+		auto rotation = o->get_rotation().get_rotation();
 		auto axis = rotation.first;
 		auto angle = rotation.second;
-		file << "Wall " << corner.x << " " << corner.y << " " << corner.z
+		file << o->get_type() << " " << corner.x << " " << corner.y << " " << corner.z
 			<< " " << scale.x << " " << scale.y << " " << scale.z << " "
-			<< axis.x << " " << axis.y << " " << axis.z << " " << angle;
+			<< axis.x << " " << axis.y << " " << axis.z << " " << angle << endl;
 	}
 
 	file.close();

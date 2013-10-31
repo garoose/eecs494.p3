@@ -21,7 +21,9 @@ using std::vector;
 Map::Map(const string &file_name_) {
 	file_name = file_name_;
 
-	list.push_back(new Wall(Point3f(-256.0f, -128.0f, 0.0f), Vector3f(0.5f, 1.0f, 1.0f), Quaternion(Global::pi_over_two, 0.0f, 0.0f)));
+	load();
+
+	/*list.push_back(new Wall(Point3f(-256.0f, -128.0f, 0.0f), Vector3f(0.5f, 1.0f, 1.0f), Quaternion(Global::pi_over_two, 0.0f, 0.0f)));
 
 	list.push_back(new Wall(Point3f(-256.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
 	list.push_back(new Wall(Point3f(-256.0f, -125.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
@@ -39,7 +41,7 @@ Map::Map(const string &file_name_) {
 	list.push_back(new Floor1(Point3f(256.0f, -125.0f, 125.0f), Vector3f(0.5f, 1.0f, 1.0f)));
 	list.push_back(new Floor1(Point3f(390.0f, -125.0f, 125.0f), Vector3f(1.0f, 1.0f, 1.0f), Quaternion(0.0f, Global::pi_over_two, 0.0f)));
 
-	list.push_back(new Crate(Point3f(0.0f, -100.0f, 70.0f), Vector3f(10.0f, 10.0f, 10.0f)));
+	list.push_back(new Crate(Point3f(0.0f, -100.0f, 70.0f), Vector3f(10.0f, 10.0f, 10.0f)));*/
 }
 
 Map::~Map() {

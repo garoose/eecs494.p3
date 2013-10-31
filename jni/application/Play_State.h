@@ -115,6 +115,7 @@ public:
 	void on_push();
 	void on_pop();
 	void on_cover();
+	void on_uncover();
 
 	void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action);
 

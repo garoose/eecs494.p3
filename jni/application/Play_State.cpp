@@ -66,6 +66,12 @@ void Play_State::on_pop() {
 
 void Play_State::on_cover() {
 	get_Controllers().reset_vibration_all();
+
+	m_time.pause();
+}
+
+void Play_State::on_uncover() {
+	m_time.unpause();
 }
 
 void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, const int &action) {

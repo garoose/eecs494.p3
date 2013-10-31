@@ -10,6 +10,8 @@ using std::cout; using std::endl;
 using std::vector;
 
 #include "Map.h"
+#include "Map_Object_Factory.h"
+
 #include "Wall.h"
 #include "Floor1.h"
 #include "Ship.h"
@@ -80,9 +82,8 @@ Map_Object *Map::get_next(const Map_Object *o) const {
 		auto it = std::find(list.begin(), list.end(), o);
 		if (it == list.end())
 			return nullptr;
-		auto next = it++;
-		if (next != list.end())
-			return (*next);
+		if (++it != list.end())
+			return (*it);
 	}
 
 	return (*list.begin());
@@ -93,12 +94,11 @@ Map_Object *Map::get_prev(const Map_Object *o) const {
 		auto it = std::find(list.begin(), list.end(), o);
 		if (it == list.end())
 			return nullptr;
-		auto prev = it--;
-		if (prev != list.end())
-			return (*prev);
+		if (it != list.begin())
+			return (*--it);
 	}
 
-	return (*list.begin());
+	return (*--list.end());
 }
 
 void Map::add_item(Map_Object *mo) {
@@ -133,5 +133,35 @@ void Map::write_to_file(const string &fname) {
 }
 
 void Map::read_from_file(const string &fname) {
+	std::ifstream file(fname);
+	string line;
+	unsigned int len = 0;
 
+	Map_Object_Factory factory;
+
+	//Read in object list
+	while (getline(file, line)) {
+		if (line[0] == '#')
+			continue;
+
+		auto words = split_string(line);
+
+		Map_Object *o = factory.make(String(words[0]),
+			Point3f(atof(words[1].c_str()), atof(words[2].c_str()), atof(words[3].c_str())),
+			Vector3f(atof(words[4].c_str()), atof(words[5].c_str()), atof(words[6].c_str())),
+			Quaternion::Axis_Angle(Vector3f(atof(words[7].c_str()), atof(words[8].c_str()), atof(words[9].c_str())),
+				atof(words[10].c_str())));
+
+		if (o) {
+			list.push_back(o);
+		}
+	}
+
+	file.close();
+}
+
+vector<string> Map::split_string(string line) {
+	std::istringstream iss(line);
+	std::istream_iterator<string> begin(iss), end;
+	return std::vector<string>(begin, end);
 }

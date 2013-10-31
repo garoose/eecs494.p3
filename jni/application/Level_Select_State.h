@@ -44,8 +44,8 @@ public:
 		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true)
 	{
 		auto it = levels.begin();
-		levels.push_back(Level("Level 1", "assets/levels/level1.txt"));
-		levels.push_back(Level("Level 2", "assets/levels/level2.txt"));
+		levels.push_back(Level("Level 1", "levels/level1.txt"));
+		levels.push_back(Level("Level 2", "levels/level2.txt"));
 		selected_map = levels.begin();
 
 		m_play_state = nullptr;

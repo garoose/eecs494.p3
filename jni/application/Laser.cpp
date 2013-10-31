@@ -49,6 +49,21 @@ Vector3f Laser::get_up() const {
 	return m_rotation * LASER_DEFAULT_UP_VECTOR;
 }
 
+void Laser::adjust_pitch(const float &phi) {
+	m_rotation *= Quaternion(0.0f, phi, 0.0f, 0.0f);
+	create_body();
+}
+
+void Laser::adjust_roll(const float &rho) {
+	m_rotation *= Quaternion(0.0f, 0.0f, rho, 0.0f);
+	create_body();
+}
+
+void Laser::adjust_yaw(const float &theta) {
+	m_rotation *= Quaternion(theta, 0.0f, 0.0f, 0.0f);
+	create_body();
+}
+
 void Laser::step(const float &time_step) {
 	if (expire.seconds() > 10.0f || exploding.seconds() > 2.0f)
 		m_can_destroy = true;

@@ -53,6 +53,21 @@ Wall_Base::~Wall_Base() {
 	}
 }
 
+void Wall_Base::adjust_pitch(const float &phi) {
+	m_rotation *= Quaternion(0.0f, phi, 0.0f, 0.0f);
+	create_body();
+}
+
+void Wall_Base::adjust_roll(const float &rho) {
+	m_rotation *= Quaternion(0.0f, 0.0f, rho, 0.0f);
+	create_body();
+}
+
+void Wall_Base::adjust_yaw(const float &theta) {
+	m_rotation *= Quaternion(theta, 0.0f, 0.0f, 0.0f);
+	create_body();
+}
+
 void Wall_Base::step(const float &time_step) {
 	create_body();
 }

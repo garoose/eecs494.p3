@@ -44,8 +44,8 @@ public:
 		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true)
 	{
 		auto it = levels.begin();
-		levels.push_back(Level("Level 1", "assets/maps/level1.txt"));
-		levels.push_back(Level("Level 2", "assets/maps/level2.txt"));
+		levels.push_back(Level("Level 1", "assets/levels/level1.txt"));
+		levels.push_back(Level("Level 2", "assets/levels/level2.txt"));
 		selected_map = levels.begin();
 
 		m_play_state = nullptr;
@@ -77,15 +77,10 @@ public:
 	}
 
 	void on_key(const SDL_KeyboardEvent &event) override {
-		switch (event.keysym.sym) {
-		case SDLK_ESCAPE:
+		if (event.keysym.sym == SDLK_ESCAPE && event.state == SDL_PRESSED)
 			get_Game().pop_state();
-			break;
-
-		default:
+		else
 			Widget_Gamestate::on_key(event);
-			break;
-		}
 	}
 
 	class Map_Selection : public Text_Box {

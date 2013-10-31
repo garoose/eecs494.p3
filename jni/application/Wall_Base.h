@@ -41,6 +41,10 @@ public:
 	void set_scale(const Vector3f &scale) override { m_scale = scale; }
 	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.space = ray; m_rotation.time = angle; };
 
+	void adjust_pitch(const float &phi);
+	void adjust_roll(const float &rho);
+	void adjust_yaw(const float &theta);
+
 	void step(const float &time_step) override;
 	void render() const override;
 	bool intersects(const Collision::Parallelepiped &p) const override;

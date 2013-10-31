@@ -34,6 +34,21 @@ void Finish_Line::reset() {
 	m_crossed = false;
 }
 
+void Finish_Line::adjust_pitch(const float &phi) {
+	m_rotation *= Quaternion(0.0f, phi, 0.0f, 0.0f);
+	create_body();
+}
+
+void Finish_Line::adjust_roll(const float &rho) {
+	m_rotation *= Quaternion(0.0f, 0.0f, rho, 0.0f);
+	create_body();
+}
+
+void Finish_Line::adjust_yaw(const float &theta) {
+	m_rotation *= Quaternion(theta, 0.0f, 0.0f, 0.0f);
+	create_body();
+}
+
 void Finish_Line::render() const {
 	const std::pair<Vector3f, float> rotation = m_rotation.get_rotation();
 

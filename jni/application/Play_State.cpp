@@ -43,8 +43,10 @@ Play_State::Play_State(const string &map_name_)
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_z), E_Z);
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_x), E_X);
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_c), E_C);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_n), E_N);
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), E_RIGHT);
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), E_LEFT);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_TAB), E_TAB);
 }
 
 void Play_State::on_push() {

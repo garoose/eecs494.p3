@@ -25,6 +25,10 @@ public:
 	virtual void set_scale(const Vector3f &scale) = 0;
 	virtual void set_rotate(const float &angle, const Vector3f &ray) = 0;
 
+	virtual void adjust_pitch(const float &phi) = 0;
+	virtual void adjust_roll(const float &rho) = 0;
+	virtual void adjust_yaw(const float &theta) = 0;
+
 	virtual void step(const float &) {}
 	virtual void render() const = 0;
 	virtual bool intersects(const Collision::Parallelepiped &p) const = 0;

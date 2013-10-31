@@ -16,7 +16,9 @@ using std::vector;
 #include "Crate.h"
 #include "Finish_Line.h"
 
-Map::Map(const string &map_name_) {
+Map::Map(const string &file_name_) {
+	file_name = file_name_;
+
 	list.push_back(new Wall(Point3f(-256.0f, -128.0f, 0.0f), Vector3f(0.5f, 1.0f, 1.0f), Quaternion(Global::pi_over_two, 0.0f, 0.0f)));
 
 	list.push_back(new Wall(Point3f(-256.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f)));
@@ -101,6 +103,14 @@ Map_Object *Map::get_prev(const Map_Object *o) const {
 
 void Map::add_item(Map_Object *mo) {
 	list.push_back(mo);
+}
+
+void Map::load() {
+	read_from_file(file_name);
+}
+
+void Map::save() {
+	write_to_file(file_name);
 }
 
 void Map::write_to_file(const string &fname) {

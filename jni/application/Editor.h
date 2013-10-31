@@ -16,44 +16,7 @@ enum Parameters {
 };
 
 class Object_Creator;
-
-class Editor_Menu_State : public Widget_Gamestate {
-
-public:
-	static Map_Object *selected;
-
-	Editor_Menu_State(Map_Object *selected_)
-		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true)
-	{
-		selected = selected_;
-
-		m_widgets.lend_Widget(trans_x);
-	}
-
-	void on_key(const SDL_KeyboardEvent &event) override {
-		switch (event.keysym.sym) {
-		case SDLK_ESCAPE:
-			get_Game().pop_state();
-			break;
-
-		default:
-			Widget_Gamestate::on_key(event);
-			break;
-		}
-	}
-
-	class Translate_X : public Text_Box {
-	public:
-		Translate_X()
-			: Text_Box(Point2f(200.0f, 100.0f), Point2f(620.0f, 100.0f), "system_36_800x600", "", get_Colors()["white"])
-		{}
-
-		void perform_logic() override {
-			set_text(itoa(selected->get_center().x));
-		}
-
-	} trans_x;
-};
+class Editor_Menu_State;
 
 class Editor : public Play_State {
 	Map_Object *selected;
@@ -106,6 +69,9 @@ public:
 	static Model *m_model;
 	static unsigned long m_instance_count;
 
+	Map_Object *get_selected() { return selected; }
+	void set_selected(Map_Object *m) { selected = m; }
+
 	void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action) override;
 
 	void perform_logic() override;
@@ -113,14 +79,18 @@ public:
 	void adjust(const Vector3f &delta);
 	void adjust_translate(const Vector3f &delta);
 	void adjust_scale(const Vector3f &delta);
-	void adjust_rotation(const float &angle, const Vector3f &ray);
+	void adjust_rotation(const Vector3f &delta);
 
-	const Point3f &get_player_position() { return m_player.get_position(); }
+	const Point3f &get_player_create_position() { return m_player.get_position() + m_player.get_forward() * m_player.get_size().x; }
 
 	void render() override;
 	void laser_collide_with_object(Map_Object *) override;
 
 	void insert_object(Map_Object *mo) {
 		m_map.add_item(mo);
+	}
+
+	void save_map() {
+		m_map.save();
 	}
 };

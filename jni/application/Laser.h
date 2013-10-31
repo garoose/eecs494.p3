@@ -59,6 +59,10 @@ public:
 	void set_scale(const Vector3f &scale) override { m_scale = scale; }
 	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.Axis_Angle(ray, angle); };
 
+	void adjust_pitch(const float &phi);
+	void adjust_roll(const float &rho);
+	void adjust_yaw(const float &theta);
+
 	// Level 2
 	void set_position(const Point3f &position);
 

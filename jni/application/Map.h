@@ -10,11 +10,11 @@
 using namespace Zeni;
 
 class Map {
-
+	std::string file_name;
 public:
 	std::vector<Map_Object *> list;
 
-	Map(const std::string &map_name_);
+	Map(const std::string &file_name_);
 	~Map();
 
 	void reset();
@@ -28,6 +28,9 @@ public:
 	Map_Object *get_prev(const Map_Object *o) const;
 
 	void add_item(Map_Object *mo);
+
+	void load();
+	void save();
 
 	void write_to_file(const std::string &fname);
 	void read_from_file(const std::string &fname);

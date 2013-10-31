@@ -38,6 +38,7 @@ enum Event_Type {
 	E_N,
 	E_RIGHT,
 	E_LEFT,
+	E_TAB,
 
 	E_MAX
 };

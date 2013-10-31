@@ -116,58 +116,53 @@ public:
 	class Translate_X : public Text_Box {
 	public:
 		Translate_X()
-			: Text_Box(Point2f(200.0f, 100.0f), Point2f(300.0f, 150.0f), "system_36_800x600", "transx", get_Colors()["white"], true)
+			: Text_Box(Point2f(200.0f, 100.0f), Point2f(350.0f, 150.0f), "system_36_800x600", "transx", get_Colors()["white"], true)
 		{
 			if (m_selected)
-				set_text(ftoa(m_selected->get_center().x));
+				set_text(ftoa(m_selected->get_corner().x));
 		}
 
 		void on_change() override {
 			if (m_selected) {
-				Point3f center = m_selected->get_center();
-				m_selected->set_translate(Vector3f(atof(get_text().c_str()), center.y, center.z));
+				Point3f corner = m_selected->get_corner();
+				m_selected->set_translate(Vector3f(atof(get_text().c_str()), corner.y, corner.z));
 			}
-		}
-
-		void perform_logic() override {
-
 		}
 	} trans_x;
 
 	class Translate_Y : public Text_Box {
 	public:
 		Translate_Y()
-			: Text_Box(Point2f(320.0f, 100.0f), Point2f(420.0f, 150.0f), "system_36_800x600", "transy", get_Colors()["white"], true)
+			: Text_Box(Point2f(370.0f, 100.0f), Point2f(530.0f, 150.0f), "system_36_800x600", "transy", get_Colors()["white"], true)
 		{
 			if (m_selected)
-				set_text(ftoa(m_selected->get_center().y));
+				set_text(ftoa(m_selected->get_corner().y));
 			else
 				set_editable(false);
 		}
 
 		void on_change() override {
 			if (m_selected) {
-				Point3f center = m_selected->get_center();
-				m_selected->set_translate(Vector3f(center.x, atof(get_text().c_str()), center.z));
+				Point3f corner = m_selected->get_corner();
+				m_selected->set_translate(Vector3f(corner.x, atof(get_text().c_str()), corner.z));
 			}
-		}
-
-		void perform_logic() override {
-
 		}
 	} trans_y;
 
 	class Translate_Z : public Text_Box {
 	public:
 		Translate_Z()
-		: Text_Box(Point2f(440.0f, 100.0f), Point2f(540.0f, 150.0f), "system_36_800x600", "transz", get_Colors()["white"], true)
+		: Text_Box(Point2f(550.0f, 100.0f), Point2f(690.0f, 150.0f), "system_36_800x600", "transz", get_Colors()["white"], true)
 		{
 			if (m_selected)
-				set_text(ftoa(m_selected->get_center().z));
+				set_text(ftoa(m_selected->get_corner().z));
 		}
 
-		void perform_logic() override {
-
+		void on_change() override {
+			if (m_selected) {
+				Point3f corner = m_selected->get_corner();
+				m_selected->set_translate(Vector3f(corner.x, corner.y, atof(get_text().c_str())));
+			}
 		}
 	} trans_z;
 

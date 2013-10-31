@@ -12,6 +12,8 @@ class Player : public Ship {
 	Vector3f m_camera_offset_max;
 	Light m_light;
 
+	bool m_reversed;
+
 	Collision::Parallelepiped m_camera_body; // collision
 
 	void _set_position();

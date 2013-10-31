@@ -34,26 +34,13 @@ private:
   }
 
   void render() {
-	render_image("stars", Point2f(), Point2f(get_Window().get_width() / 2.0f, get_Window().get_height()));
+	  render_image("stars", Point2f(), Point2f(800, 600));
 
-    Widget_Gamestate::render();
+	  Widget_Gamestate::render();
 
-    Zeni::Font &fr = get_Fonts()["title"];
+	  Zeni::Font &fr = get_Fonts()["title"];
 
-	render_image("instr", Point2f(), Point2f(get_Window().get_width() / 2.0f, get_Window().get_height()));
-
-    /*fr.render_text(
-#if defined(_WINDOWS)
-                   "ALT+F4"
-#elif defined(_MACOSX)
-                   "Apple+Q"
-#else
-                   "Ctrl+Q"
-#endif
-                           " to Quit",
-                   Point2f(400.0f, 300.0f - 0.5f * fr.get_text_height()),
-                   get_Colors()["title_text"],
-                   ZENI_CENTER);*/
+	  render_image("instructions", Point2f(), Point2f(800, 600));
   }
 };
 
@@ -71,7 +58,7 @@ public:
 	}
 
 	void render() {
-		render_image("stars", Point2f(), Point2f(get_Window().get_width() / 2.0f, get_Window().get_height()));
+		render_image("stars", Point2f(), Point2f(800, 600));
 
 		Title_State_T::render();
 
@@ -82,7 +69,7 @@ public:
 class Bootstrap {
   class Gamestate_One_Initializer : public Gamestate_Zero_Initializer {
     virtual Gamestate_Base * operator()() {
-      Window::set_title("zenilib Application");
+      Window::set_title("Space Race 7000");
 
 	  get_Controllers();
       get_Video();

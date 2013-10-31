@@ -28,4 +28,5 @@ public:
 	Map_Object *get_prev(const Map_Object *o) const;
 
 	void write_to_file(const std::string &fname);
+	void read_from_file(const std::string &fname);
 };

@@ -6,7 +6,8 @@ Player::Player(const Camera &camera_, const Vector3f &size_, const float &max_sp
 	: m_camera(camera_),
 	m_camera_offset(camera_offset_),
 	m_camera_offset_max(camera_offset_),
-	Ship(camera_.position, size_, max_speed_, acceleration_)
+	Ship(camera_.position, size_, max_speed_, acceleration_),
+	m_reversed(false)
 {
 	m_camera.fov_rad = Zeni::Global::pi / 3.0f;
 }
@@ -34,10 +35,12 @@ void Player::reset() {
 
 	set_position(get_position());
 	m_camera.orientation = Quaternion();
-
 }
 
 void Player::adjust_pitch(const float &phi) {
+	if (m_reversed)
+		return;
+
 	Ship::adjust_pitch(phi);
 
 	m_camera.adjust_pitch(phi);
@@ -45,6 +48,9 @@ void Player::adjust_pitch(const float &phi) {
 }
 
 void Player::adjust_roll(const float &rho) {
+	if (m_reversed)
+		return;
+
 	Ship::adjust_roll(rho);
 
 	m_camera.adjust_roll(rho);
@@ -52,6 +58,9 @@ void Player::adjust_roll(const float &rho) {
 }
 
 void Player::adjust_yaw(const float &theta) {
+	if (m_reversed)
+		return;
+
 	Ship::adjust_yaw(theta);
 
 	m_camera.adjust_yaw(theta);
@@ -60,6 +69,7 @@ void Player::adjust_yaw(const float &theta) {
 
 void Player::reverse_camera() {
 	m_camera.adjust_yaw(Global::pi);
+	m_reversed = !m_reversed;
 }
 
 // Level 3

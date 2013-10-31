@@ -19,7 +19,7 @@ Wall_Base::Wall_Base(const Point3f &corner_,
 	m_model = m_instance->model;
 
 	m_size = m_model->get_extents().upper_bound - m_model->get_extents().lower_bound;
-	m_size.multiply_by(m_scale);
+	m_size = m_size.multiply_by(m_scale);
 
 	create_body();
 }

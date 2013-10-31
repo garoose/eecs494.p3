@@ -24,7 +24,7 @@ Crate::Crate(const Point3f &m_corner_, const Vector3f &m_scale_,
 	++m_instance_count;
 
 	m_size = m_model->get_extents().upper_bound - m_model->get_extents().lower_bound;
-	m_size.multiply_by(m_scale);
+	m_size = m_size.multiply_by(m_scale);
 
 	//initialize sounds
 	m_source = new Sound_Source(get_Sounds()["explode"]);

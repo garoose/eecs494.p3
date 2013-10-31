@@ -1,5 +1,7 @@
 #include "Editor.h"
 
+static Map_Object *selected;
+
 Editor::Editor(const std::string &map_name_)
 : Play_State(map_name_),
 parameter(param_translate),
@@ -9,6 +11,8 @@ selected(nullptr)
 		m_model = new Model("models/crate.3ds");
 	}
 	++m_instance_count;
+
+	m_menu = new Editor_Menu_State(selected);
 }
 
 Editor::~Editor() {
@@ -16,28 +20,21 @@ Editor::~Editor() {
 		delete m_model;
 		m_model = nullptr;
 	}
+
+	delete m_menu;
 }
 
 void Editor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action) {
 	switch (action) {
 	case E_W:
-		m_controls.w = confidence ? true : false;
-		break;
 	case E_A:
-		m_controls.a = confidence ? true : false;
-		break;
 	case E_S:
-		m_controls.s = confidence ? true : false;
-		break;
 	case E_D:
-		m_controls.d = confidence ? true : false;
-		break;
 	case E_Q:
-		m_controls.q = confidence ? true : false;
-		break;
 	case E_E:
-		m_controls.e = confidence ? true : false;
+		m_controls.set_key(Event_Type(action), confidence ? true : false);
 		break;
+
 	case E_Z:
 		parameter = param_translate;
 		break;
@@ -53,31 +50,36 @@ void Editor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, co
 	case E_LEFT:
 		selected = m_map.get_prev(selected);
 		break;
-	}
 
-	Play_State::on_event(id, confidence, action);
+	case E_EXIT:
+		get_Game().push_state(m_menu);
+		break;
+
+	default:
+		Play_State::on_event(id, confidence, action);
+	}
 }
 
 void Editor::perform_logic() {
-	if (m_controls.w)
-		adjust(Vector3f(0.5f, 0.0f, 0.0f));
-	if (m_controls.a)
-		adjust(Vector3f(0.0f, 0.5f, 0.0f));
-	if (m_controls.s)
-		adjust(Vector3f(-0.5f, 0.0f, 0.0f));
-	if (m_controls.d)
-		adjust(Vector3f(0.0f, -0.5f, 0.0f));
-	if (m_controls.q) {
+	if (m_controls.get_key(E_W))
+		adjust(Vector3f(1.0f, 0.0f, 0.0f));
+	if (m_controls.get_key(E_A))
+		adjust(Vector3f(0.0f, 1.0f, 0.0f));
+	if (m_controls.get_key(E_S))
+		adjust(Vector3f(-1.0f, 0.0f, 0.0f));
+	if (m_controls.get_key(E_D))
+		adjust(Vector3f(0.0f, -1.0f, 0.0f));
+	if (m_controls.get_key(E_Q)) {
 		if (parameter == param_rotation)
-			adjust_rotation(-Global::pi_over_two, Vector3f());
+			adjust_rotation(-Global::pi / 4.0f, Vector3f());
 		else
-			adjust(Vector3f(0.0f, 0.0f, -0.5f));
+			adjust(Vector3f(0.0f, 0.0f, -1.0f));
 	}
-	if (m_controls.e) {
+	if (m_controls.get_key(E_E)) {
 		if (parameter == param_rotation)
-			adjust_rotation(Global::pi_over_two, Vector3f());
+			adjust_rotation(Global::pi / 4.0f, Vector3f());
 		else
-			adjust(Vector3f(0.0f, 0.0f, 0.5f));
+			adjust(Vector3f(0.0f, 0.0f, 1.0f));
 	}
 
 	Play_State::perform_logic();
@@ -86,13 +88,13 @@ void Editor::perform_logic() {
 void Editor::adjust(const Vector3f &delta) {
 	switch (parameter) {
 	case param_translate:
-		adjust_translate(delta);
+		adjust_translate(delta / 2.0f);
 		break;
 	case param_scale:
-		adjust_scale(delta);
+		adjust_scale(delta / 5.0f);
 		break;
 	case param_rotation:
-		adjust_rotation(0.0f, delta);
+		adjust_rotation(0.0f, delta / 10.0f);
 		break;
 	}
 }
@@ -133,3 +135,5 @@ void Editor::laser_collide_with_object(Map_Object *m) {
 
 Model * Editor::m_model = nullptr;
 unsigned long Editor::m_instance_count = 0lu;
+
+Map_Object *Editor_Menu_State::selected = nullptr;

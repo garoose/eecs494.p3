@@ -13,7 +13,7 @@
 
 using namespace Zeni;
 
-enum Event_Types {
+enum Event_Type {
 	E_EXIT = 1,
 	E_LEFTRIGHT,
 	E_FORWARDBACK,
@@ -37,6 +37,8 @@ enum Event_Types {
 	E_C,
 	E_RIGHT,
 	E_LEFT,
+
+	E_MAX
 };
 
 class Play_State : public Gamestate_II {

@@ -80,11 +80,15 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 
 	case E_LEFTRIGHT: // left joy x
 		m_controls.right = m_controls.left = 0.0f;
-		m_controls.right = confidence;
+		if (confidence > 0.1 || confidence < -0.1)
+			m_controls.right = confidence;
 		break;
 
 	case E_FORWARDBACK: // lefy joy y
-		m_controls.forward = -confidence;
+		if (confidence > 0.1 || confidence < -0.1)
+			m_controls.forward = -confidence;
+		else
+			m_controls.forward = 0.0f;
 		break;
 
 	case E_YAW: // right joy x
@@ -125,9 +129,6 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 	case E_NOCLIP: // noclip
 		if (confidence == 1.0f)
 			m_noclip = !m_noclip;
-		break;
-
-	case 0:
 		break;
 
 	default:
@@ -395,9 +396,9 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 
 	/** collide camera with walls **/
 	if (m_map.intersects(m_player.get_camera_body())) {
-		m_player.adjust_camera_offset(Vector3f(-1.0f, 0.0f, 0.0f));
+		m_player.adjust_camera_offset(Vector3f(-0.4f, 0.0f, 0.0f));
 	} else {
-		m_player.adjust_camera_offset(Vector3f(1.0f, 0.0f, 0.0f));
+		m_player.adjust_camera_offset(Vector3f(0.2f, 0.0f, 0.0f));
 	}
 	
 	/** If collision has occurred, play a sound and roll things back **/

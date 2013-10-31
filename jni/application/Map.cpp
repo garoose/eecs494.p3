@@ -117,3 +117,7 @@ void Map::write_to_file(const string &fname) {
 
 	file.close();
 }
+
+void Map::read_from_file(const string &fname) {
+
+}

@@ -39,7 +39,7 @@ public:
 
 	void set_translate(const Point3f &position) override { m_corner = position; }
 	void set_scale(const Vector3f &scale) override { m_scale = scale; }
-	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.Axis_Angle(ray, angle); };
+	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.space = ray; m_rotation.time = angle; };
 
 	void step(const float &time_step) override;
 	void render() const override;

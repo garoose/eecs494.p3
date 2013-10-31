@@ -10,8 +10,18 @@
 
 using namespace Zeni;
 
-static std::vector<std::string> levels;
-static std::vector<std::string>::iterator selected;
+struct Level {
+	Level(const std::string &name_, const std::string &fname_)
+	: name(name_), fname(fname_)
+	{
+	}
+
+	std::string name;
+	std::string fname;
+};
+
+static std::vector<Level> levels;
+static std::vector<Level>::iterator selected_map;
 static Play_State *m_play_state;
 //static std::string selected;
 
@@ -34,9 +44,9 @@ public:
 		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true)
 	{
 		auto it = levels.begin();
-		levels.push_back("level1.txt");
-		levels.push_back("level2.txt");
-		selected = levels.begin();
+		levels.push_back(Level("Level 1", "assets/maps/level1.txt"));
+		levels.push_back(Level("Level 2", "assets/maps/level2.txt"));
+		selected_map = levels.begin();
 
 		m_play_state = nullptr;
 
@@ -85,7 +95,7 @@ public:
 		{}
 
 		void perform_logic() override {
-			set_text(String(*selected));
+			set_text(String(selected_map->name));
 		}
 
 	} map_selection;
@@ -97,7 +107,7 @@ public:
 		{}
 
 		void on_accept() override {
-			Play_State *s = new Play_State(*selected);
+			Play_State *s = new Play_State(selected_map->fname);
 			get_Game().push_state(s);
 		}
 
@@ -110,9 +120,9 @@ public:
 		{}
 
 		void on_accept() override {
-			if (selected == levels.begin())
-				selected = levels.end();
-			selected--;
+			if (selected_map == levels.begin())
+				selected_map = levels.end();
+			selected_map--;
 		}
 
 	} prev_button;
@@ -124,9 +134,9 @@ public:
 		{}
 
 		void on_accept() override {
-			selected++;
-			if (selected == levels.end())
-				selected = levels.begin();
+			selected_map++;
+			if (selected_map == levels.end())
+				selected_map = levels.begin();
 		}
 
 	} next_button;
@@ -150,13 +160,13 @@ public:
 		{}
 
 		void on_accept() override {
-			get_Game().push_state(new Editor(*selected));
+			get_Game().push_state(new Editor(selected_map->fname));
 		}
 
 	} edit_button;
 
 	void render() override {
-		render_image("stars", Point2f(), Point2f(get_Window().get_width() / 2.0f, get_Window().get_height()));
+		render_image("stars", Point2f(), Point2f(800, 600));
 
 		Widget_Gamestate::render();
 

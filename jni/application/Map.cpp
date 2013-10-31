@@ -99,6 +99,10 @@ Map_Object *Map::get_prev(const Map_Object *o) const {
 	return (*list.begin());
 }
 
+void Map::add_item(Map_Object *mo) {
+	list.push_back(mo);
+}
+
 void Map::write_to_file(const string &fname) {
 	std::ofstream file(fname);
 	string line;

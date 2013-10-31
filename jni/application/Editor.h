@@ -5,6 +5,7 @@
 
 #include "Play_State.h"
 #include "Map_Object.h"
+#include "Map_Object_Factory.h"
 
 using namespace Zeni;
 
@@ -13,6 +14,8 @@ enum Parameters {
 	param_scale,
 	param_rotation,
 };
+
+class Object_Creator;
 
 class Editor_Menu_State : public Widget_Gamestate {
 
@@ -56,6 +59,9 @@ class Editor : public Play_State {
 	Map_Object *selected;
 	Parameters parameter;
 	Editor_Menu_State *m_menu;
+	Object_Creator *m_creator;
+
+	Map_Object_Factory factory;
 
 	struct Controls {
 		Controls() : key_read(false)
@@ -109,6 +115,12 @@ public:
 	void adjust_scale(const Vector3f &delta);
 	void adjust_rotation(const float &angle, const Vector3f &ray);
 
+	const Point3f &get_player_position() { return m_player.get_position(); }
+
 	void render() override;
 	void laser_collide_with_object(Map_Object *) override;
+
+	void insert_object(Map_Object *mo) {
+		m_map.add_item(mo);
+	}
 };

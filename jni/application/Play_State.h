@@ -35,6 +35,7 @@ enum Event_Type {
 	E_Z,
 	E_X,
 	E_C,
+	E_N,
 	E_RIGHT,
 	E_LEFT,
 
@@ -44,7 +45,6 @@ enum Event_Type {
 class Play_State : public Gamestate_II {
 private:
 	Light m_dir_light;
-	Player m_player;
 	Ship m_enemy;
 	Lap_Time m_time;
 	Finish_Line m_finish;
@@ -102,6 +102,7 @@ private:
 	bool m_noclip;
 
 protected:
+	Player m_player;
 	Map m_map;
 	virtual void laser_collide_with_object(Map_Object *colliding);
 	void render_3d() const;

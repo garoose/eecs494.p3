@@ -1,6 +1,40 @@
 #include "Editor.h"
 
-static Map_Object *selected;
+class Object_Creator : public Widget_Gamestate {
+	static Editor *editor;
+	static Map_Object_Factory factory;
+
+public:
+	Object_Creator(Editor *e)
+		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true)
+	{
+		editor = e;
+
+		m_widgets.lend_Widget(create_type);
+	}
+
+	class Type_Box : public Text_Box {
+	public:
+		Type_Box()
+			: Text_Box(Point2f(200.0f, 100.0f), Point2f(620.0f, 100.0f), "system_36_800x600", "", get_Colors()["white"], true)
+		{
+		}
+		
+		//TODO clear text on load
+
+		void on_accept() {
+			Map_Object *m = factory.make(get_text(), editor->get_player_position());
+			if (m)
+				editor->insert_object(m);
+
+			get_Game().pop_state();
+		}
+
+	} create_type;
+};
+
+Editor *Object_Creator::editor;
+Map_Object_Factory Object_Creator::factory;
 
 Editor::Editor(const std::string &map_name_)
 : Play_State(map_name_),
@@ -13,6 +47,7 @@ selected(nullptr)
 	++m_instance_count;
 
 	m_menu = new Editor_Menu_State(selected);
+	m_creator = new Object_Creator(this);
 }
 
 Editor::~Editor() {
@@ -22,6 +57,7 @@ Editor::~Editor() {
 	}
 
 	delete m_menu;
+	delete m_creator;
 }
 
 void Editor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action) {
@@ -43,6 +79,9 @@ void Editor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, co
 		break;
 	case E_C:
 		parameter = param_rotation;
+		break;
+	case E_N:
+		get_Game().push_state(m_creator);
 		break;
 	case E_RIGHT:
 		selected = m_map.get_next(selected);

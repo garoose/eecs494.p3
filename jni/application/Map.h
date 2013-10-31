@@ -27,6 +27,8 @@ public:
 	Map_Object *get_next(const Map_Object *o) const;
 	Map_Object *get_prev(const Map_Object *o) const;
 
+	void add_item(Map_Object *mo);
+
 	void write_to_file(const std::string &fname);
 	void read_from_file(const std::string &fname);
 };

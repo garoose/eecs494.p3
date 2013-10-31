@@ -38,8 +38,6 @@ private:
 
 	  Widget_Gamestate::render();
 
-	  Zeni::Font &fr = get_Fonts()["title"];
-
 	  render_image("instructions", Point2f(), Point2f(800, 600));
   }
 };

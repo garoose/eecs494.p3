@@ -17,7 +17,8 @@ public:
 		scale_x(editor_),
 		scale_y(editor_),
 		scale_z(editor_),
-		save_button(editor_)
+		save_button(editor_),
+		delete_button(editor_)
 	{
 		m_widgets.lend_Widget(trans);
 		m_widgets.lend_Widget(trans_x);
@@ -29,6 +30,7 @@ public:
 		m_widgets.lend_Widget(scale_y);
 		m_widgets.lend_Widget(scale_z);
 
+		m_widgets.lend_Widget(delete_button);
 		m_widgets.lend_Widget(save_button);
 		m_widgets.lend_Widget(close_button);
 		m_widgets.lend_Widget(quit_button);
@@ -172,6 +174,19 @@ public:
 			}
 		}
 	} scale_z;
+
+	class Delete : public Text_Button {
+		Editor *m_editor;
+	public:
+		Delete(Editor *e)
+			: Text_Button(Point2f(150.0f, 300.0f), Point2f(250.0f, 350.0f), "system_36_800x600", "Delete")
+		{}
+
+		void on_accept() {
+			m_editor->remove_object(m_editor->get_selected());
+			get_Game().pop_state();
+		}
+	} delete_button;
 
 	class Save : public Text_Button {
 		Editor *m_editor;

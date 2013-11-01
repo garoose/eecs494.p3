@@ -43,6 +43,13 @@ Ship::Ship(const Point3f &m_center_, const Vector3f &m_scale_,
 	m_headlight.linear_attenuation = 0.001f;
 	//m_headlight.quadratic_attenuation = 0.000001f;
 
+	m_taillight.set_light_type(LIGHT_SPOT);
+	m_taillight.set_spot_phi(Global::pi);
+	m_taillight.set_spot_theta(Global::pi / 4.0f);
+	m_taillight.diffuse = Color(1.0f, 0.8f, 0.0f, 0.0f);
+	m_taillight.specular = Color(1.0f, 0.8f, 0.0f, 0.0f);
+	m_taillight.linear_attenuation = 0.005f;
+
 	create_body();
 }
 
@@ -114,7 +121,7 @@ void Ship::adjust_yaw(const float &theta) {
 }
 
 void Ship::step(const float &time_step) {
-	if (m_exploding.seconds() > 2.0f) {
+	if (m_exploding.seconds() > 1.6f) {
 		m_exploded = true;
 		m_exploding.stop();
 		m_exploding.set(0.0f);
@@ -147,6 +154,10 @@ void Ship::create_body() {
 	// Adjust the headlight to be behind and facing forward
 	m_headlight.position = get_center() + (get_forward().normalize() * (-m_size.x));
 	m_headlight.spot_direction = get_forward();
+
+	// Adjust the taillight to be behing and facing back
+	m_taillight.position = get_center() + (get_forward().normalize() * (-m_size.x));
+	m_taillight.spot_direction = -get_forward();
 }
 
 void Ship::render() const {
@@ -176,7 +187,9 @@ void Ship::collide() {
 
 	play_sound("collide");
 
-	m_health -= m_god_mode ? 0.0f : 100.0f * (m_velocity.magnitude() / (m_max_speed / 10.0f));
+	float damage = (100.0f * (m_velocity.magnitude() / (m_max_speed / 10.0f)) + 1.0f);
+
+	m_health -= m_god_mode ? 0.0f : damage;
 	//m_health -= m_god_mode ? 0.0f : 10.0f;
 
 	if (m_health <= 0.0f) {

@@ -130,6 +130,7 @@ void Crate::render() const {
 
 	if (m_exploding.seconds()) {
 		m_explosion->set_translate(get_center());
+		m_explosion->set_scale(m_scale / 15.0f);
 		m_explosion->set_keyframe(m_exploding.seconds() * 80.0f);
 		m_explosion->render();
 	}

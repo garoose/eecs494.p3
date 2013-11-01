@@ -104,8 +104,22 @@ Map_Object *Map::get_prev(const Map_Object *o) const {
 	return (*--list.end());
 }
 
-void Map::add_item(Map_Object *mo) {
-	list.push_back(mo);
+void Map::add_item(Map_Object *o) {
+	list.push_back(o);
+}
+
+Map_Object *Map::remove_item(Map_Object *o) {
+	auto it = std::find(list.begin(), list.end(), o);
+	if (it != list.end()) {
+		auto item = *it;
+		it = list.erase(it);
+		delete item;
+	}
+
+	if (it == list.end())
+		return nullptr;
+
+	return *it;
 }
 
 void Map::load() {

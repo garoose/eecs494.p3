@@ -33,6 +33,7 @@ public:
   {
 	  pages.push_back("instructions");
 	  pages.push_back("instructions2");
+	  pages.push_back("instructions3");
 
 	  cur = pages.begin();
 
@@ -67,7 +68,7 @@ private:
 	  {}
 
 	  void on_accept() {
-		  s->next_page();
+		  s->prev_page();
 	  }
   } prev_button;
 

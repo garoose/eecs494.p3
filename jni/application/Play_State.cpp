@@ -328,6 +328,7 @@ void Play_State::render_3d() {
 	//vr.set_ambient_lighting(Color(1.0f, 0.1f, 0.1f, 0.1f));
 	//vr.set_Light(0, m_dir_light);
 	vr.set_Light(1, m_player.get_headlight());
+	vr.set_Light(2, m_player.get_taillight());
 	
 	m_map.render();
 

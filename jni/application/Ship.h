@@ -29,6 +29,7 @@ class Ship {
 	// Level 3
 	Collision::Parallelepiped m_body; // collision
 	Light m_headlight;
+	Light m_taillight;
 	float m_max_speed;
 	float m_acceleration;
 	Vector3f m_velocity;
@@ -80,6 +81,7 @@ public:
 	// Level 3
 	const Zeni::Collision::Parallelepiped & get_body() const { return m_body; }
 	const Light &get_headlight() const { return m_headlight; }
+	const Light &get_taillight() const { return m_taillight; }
 
 	const Vector3f & get_velocity() const { return m_velocity; }
 	const Vector3f &get_prev_velocity() const { return m_prev_velocity; }

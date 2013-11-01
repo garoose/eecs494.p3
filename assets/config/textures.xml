@@ -91,6 +91,10 @@ The following things are unsupported:
     <filepath>textures/editor_instructions.png</filepath>
     <tile>0</tile>
   </instructions2>
+  <instructions3>
+    <filepath>textures/object_types.png</filepath>
+    <tile>0</tile>
+  </instructions3>
   <level_select>
     <filepath>textures/level_select.png</filepath>
     <tile>0</tile>

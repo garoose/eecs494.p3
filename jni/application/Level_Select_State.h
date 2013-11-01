@@ -3,6 +3,8 @@
 #include <zenilib.h>
 #include <vector>
 #include <string>
+#include <iostream>
+#include <fstream>
 
 #include "Map.h"
 #include "Play_State.h"
@@ -43,8 +45,7 @@ public:
 		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true)
 	{
 		auto it = levels.begin();
-		levels.push_back(Level("Level 1", "levels/level1.txt"));
-		levels.push_back(Level("Level 2", "levels/level2.txt"));
+		load_levels();
 		selected_map = levels.begin();
 
 		m_play_state = nullptr;
@@ -80,6 +81,18 @@ public:
 			get_Game().pop_state();
 		else
 			Widget_Gamestate::on_key(event);
+	}
+
+	void load_levels() {
+		std::ifstream in("config/levels.txt");
+		std::string line;
+
+		while (getline(in, line)) {
+			int last_space = line.find_last_of(' ');
+			std::string name = line.substr(0, last_space);
+			std::string fname = line.substr(last_space + 1, line.size() - last_space);
+			levels.push_back(Level(name, fname));
+		}
 	}
 
 	class Map_Selection : public Text_Box {

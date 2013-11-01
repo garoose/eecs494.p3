@@ -34,7 +34,8 @@ public:
 	Map_Object *get_next(const Map_Object *o) const;
 	Map_Object *get_prev(const Map_Object *o) const;
 
-	void add_item(Map_Object *mo);
+	void add_item(Map_Object *o);
+	Map_Object *remove_item(Map_Object *o);
 
 	void load();
 	void save();

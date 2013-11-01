@@ -19,7 +19,7 @@ class Object_Creator;
 class Editor_Menu_State;
 
 class Editor : public Play_State {
-	Map_Object *selected;
+	Map_Object *m_selected;
 	Parameters parameter;
 	Editor_Menu_State *m_menu;
 	Object_Creator *m_creator;
@@ -69,8 +69,8 @@ public:
 	static Model *m_model;
 	static unsigned long m_instance_count;
 
-	Map_Object *get_selected() { return selected; }
-	void set_selected(Map_Object *m) { selected = m; }
+	Map_Object *get_selected() { return m_selected; }
+	void set_selected(Map_Object *m) { m_selected = m; }
 
 	void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action) override;
 	void on_finish_cross() override;
@@ -87,8 +87,12 @@ public:
 	void render_3d() override;
 	void laser_collide_with_object(Map_Object *) override;
 
-	void insert_object(Map_Object *mo) {
-		m_map.add_item(mo);
+	void insert_object(Map_Object *o) {
+		m_map.add_item(o);
+	}
+
+	void remove_object(Map_Object *o) {
+		m_selected = m_map.remove_item(o);
 	}
 
 	void save_map() {

@@ -35,6 +35,8 @@ void Player::reset() {
 
 	set_position(get_position());
 	m_camera.orientation = Quaternion();
+	if (m_reversed)
+		reverse_camera();
 }
 
 void Player::adjust_pitch(const float &phi) {

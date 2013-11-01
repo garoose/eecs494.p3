@@ -82,7 +82,7 @@ String Object_Creator::type;
 Editor::Editor(const std::string &map_name_)
 : Play_State(map_name_),
 parameter(param_translate),
-selected(nullptr)
+m_selected(nullptr)
 {
 	if (!m_instance_count) {
 		m_model = new Model("models/sphere.3ds");
@@ -93,7 +93,7 @@ selected(nullptr)
 	m_creator = new Object_Creator(this);
 
 	// select the first object (if there is one)
-	selected = m_map.get_next(nullptr);
+	m_selected = m_map.get_next(nullptr);
 
 	// make player invincible
 	m_player.god_mode(true);
@@ -138,15 +138,15 @@ void Editor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, co
 		break;
 	case E_F: // select finish line
 		if (confidence == 1.0f)
-			selected = m_map.get_finish();
+			m_selected = m_map.get_finish();
 		break;
 	case E_RIGHT:
 		if (confidence == 1.0f)
-			selected = m_map.get_next(selected);
+			m_selected = m_map.get_next(m_selected);
 		break;
 	case E_LEFT:
 		if (confidence == 1.0f)
-			selected = m_map.get_prev(selected);
+			m_selected = m_map.get_prev(m_selected);
 		break;
 
 	case E_EXIT:
@@ -196,22 +196,22 @@ void Editor::adjust(const Vector3f &delta) {
 }
 
 void Editor::adjust_translate(const Vector3f &delta) {
-	if (selected) {
-		selected->set_translate(selected->get_corner() + delta);
+	if (m_selected) {
+		m_selected->set_translate(m_selected->get_corner() + delta);
 	}
 }
 
 void Editor::adjust_scale(const Vector3f &delta) {
-	if (selected) {
-		selected->set_scale(selected->get_scale() + delta);
+	if (m_selected) {
+		m_selected->set_scale(m_selected->get_scale() + delta);
 	}
 }
 
 void Editor::adjust_rotation(const Vector3f &delta) {
-	if (selected) {
-		selected->adjust_pitch(delta.x * Global::pi / 4.0f);
-		selected->adjust_yaw(delta.y * Global::pi / 4.0f);
-		selected->adjust_roll(delta.z * Global::pi / 4.0f);
+	if (m_selected) {
+		m_selected->adjust_pitch(delta.x * Global::pi / 4.0f);
+		m_selected->adjust_yaw(delta.y * Global::pi / 4.0f);
+		m_selected->adjust_roll(delta.z * Global::pi / 4.0f);
 	}
 }
 
@@ -228,15 +228,15 @@ const Point3f Editor::get_player_create_position() {
 void Editor::render_3d() {
 	Play_State::render_3d();
 
-	if (selected) {
-		m_model->set_translate(selected->get_center());
+	if (m_selected) {
+		m_model->set_translate(m_selected->get_center());
 		m_model->set_scale(Vector3f(20.0f, 20.0f, 20.0f));
 		m_model->render();
 	}
 }
 
 void Editor::laser_collide_with_object(Map_Object *m) {
-	selected = m;
+	m_selected = m;
 }
 
 Model * Editor::m_model = nullptr;

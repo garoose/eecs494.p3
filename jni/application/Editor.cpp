@@ -1,5 +1,6 @@
-#include "Editor.h"
+#include <cmath>
 
+#include "Editor.h"
 #include "Editor_Menu_State.h"
 
 class Object_Creator : public Widget_Gamestate {
@@ -218,9 +219,9 @@ void Editor::adjust_rotation(const Vector3f &delta) {
 const Point3f Editor::get_player_create_position() {
 	Point3f pos = m_player.get_position() + m_player.get_forward() * m_player.get_size().x;
 
-	pos.x = trunc(pos.x);
-	pos.y = trunc(pos.y);
-	pos.z = trunc(pos.z);
+	pos.x = std::floor(pos.x);
+	pos.y = std::floor(pos.y);
+	pos.z = std::floor(pos.z);
 
 	return pos;
 }

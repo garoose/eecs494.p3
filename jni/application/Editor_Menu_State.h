@@ -11,6 +11,7 @@ class Editor_Menu_State : public Widget_Gamestate {
 public:
 	Editor_Menu_State(Editor *editor_)
 		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true),
+		type_box(editor_),
 		trans_x(editor_),
 		trans_y(editor_),
 		trans_z(editor_),
@@ -20,6 +21,7 @@ public:
 		save_button(editor_),
 		delete_button(editor_)
 	{
+		m_widgets.lend_Widget(type_box);
 		m_widgets.lend_Widget(trans);
 		m_widgets.lend_Widget(trans_x);
 		m_widgets.lend_Widget(trans_y);
@@ -42,6 +44,16 @@ public:
 		else
 			Widget_Gamestate::on_key(event);
 	}
+
+	class Type : public Text_Box {
+	public:
+		Type(Editor *e)
+			: Text_Box(Point2f(50.0f, 20.0f), Point2f(350.0f, 60.0f), "system_36_800x600", "", get_Colors()["yellow"])
+		{
+			if (e->get_selected())
+				set_text("Selected: " + String(e->get_selected()->get_type()));
+		}
+	} type_box;
 
 	class Translate : public Text_Box {
 	public:
@@ -179,7 +191,8 @@ public:
 		Editor *m_editor;
 	public:
 		Delete(Editor *e)
-			: Text_Button(Point2f(150.0f, 300.0f), Point2f(250.0f, 350.0f), "system_36_800x600", "Delete")
+			: Text_Button(Point2f(100.0f, 300.0f), Point2f(400.0f, 350.0f), "system_36_800x600", "Delete Selected Object"),
+			m_editor(e)
 		{}
 
 		void on_accept() {

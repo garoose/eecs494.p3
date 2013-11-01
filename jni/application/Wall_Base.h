@@ -37,9 +37,9 @@ public:
 	const Quaternion &get_rotation() const override { return m_rotation; }
 	const Point3f get_center() const { return m_corner + (m_rotation * m_size) / 2.0f; }
 
-	void set_translate(const Point3f &position) override { m_corner = position; }
-	void set_scale(const Vector3f &scale) override { m_scale = scale; }
-	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.space = ray; m_rotation.time = angle; };
+	void set_translate(const Point3f &position) override { m_corner = position; create_body(); }
+	void set_scale(const Vector3f &scale) override { m_scale = scale; create_body(); }
+	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.space = ray; m_rotation.time = angle; create_body(); };
 
 	void adjust_pitch(const float &phi);
 	void adjust_roll(const float &rho);

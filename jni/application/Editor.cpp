@@ -85,7 +85,7 @@ parameter(param_translate),
 selected(nullptr)
 {
 	if (!m_instance_count) {
-		m_model = new Model("models/crate.3ds");
+		m_model = new Model("models/sphere.3ds");
 	}
 	++m_instance_count;
 
@@ -94,6 +94,9 @@ selected(nullptr)
 
 	// select the first object (if there is one)
 	selected = m_map.get_next(nullptr);
+
+	// make player invincible
+	m_player.god_mode(true);
 }
 
 Editor::~Editor() {
@@ -147,13 +150,18 @@ void Editor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, co
 		break;
 
 	case E_EXIT:
-		if (confidence == 1.0f)
+		if (confidence == 1.0f) {
+			m_player.clear_prev_velocity();
 			get_Game().push_state(new Editor_Menu_State(this));
+		}
 		break;
 
 	default:
 		Play_State::on_event(id, confidence, action);
 	}
+}
+
+void Editor::on_finish_cross() {
 }
 
 void Editor::perform_logic() {
@@ -179,7 +187,7 @@ void Editor::adjust(const Vector3f &delta) {
 		adjust_translate(delta / 2.0f);
 		break;
 	case param_scale:
-		adjust_scale(delta / 5.0f);
+		adjust_scale(delta / 10.0f);
 		break;
 	case param_rotation:
 		adjust_rotation(delta);
@@ -207,12 +215,22 @@ void Editor::adjust_rotation(const Vector3f &delta) {
 	}
 }
 
+const Point3f Editor::get_player_create_position() {
+	Point3f pos = m_player.get_position() + m_player.get_forward() * m_player.get_size().x;
+
+	pos.x = trunc(pos.x);
+	pos.y = trunc(pos.y);
+	pos.z = trunc(pos.z);
+
+	return pos;
+}
+
 void Editor::render_3d() {
 	Play_State::render_3d();
 
 	if (selected) {
 		m_model->set_translate(selected->get_center());
-		m_model->set_scale(Vector3f(10.0f, 10.0f, 10.0f));
+		m_model->set_scale(Vector3f(20.0f, 20.0f, 20.0f));
 		m_model->render();
 	}
 }

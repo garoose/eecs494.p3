@@ -22,9 +22,9 @@ public:
 	virtual const Quaternion &get_rotation() const override { return m_rotation; }
 	const Point3f get_center() const { return m_corner + (m_rotation * m_scale) / 2.0f; }
 
-	void set_translate(const Point3f &position) override { m_corner = position; }
-	void set_scale(const Vector3f &scale) override { m_scale = scale; }
-	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.Axis_Angle(ray, angle); };
+	void set_translate(const Point3f &position) override { m_corner = position; create_body(); }
+	void set_scale(const Vector3f &scale) override { m_scale = scale; create_body(); create_body(); }
+	void set_rotate(const float &angle, const Vector3f &ray) override { m_rotation.Axis_Angle(ray, angle); create_body(); };
 
 	void adjust_pitch(const float &phi);
 	void adjust_roll(const float &rho);

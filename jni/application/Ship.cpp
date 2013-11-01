@@ -17,7 +17,8 @@ Ship::Ship(const Point3f &m_center_, const Vector3f &m_scale_,
 	m_reset_pos(m_center_),
 	m_health(100.0f),
 	m_exploded(false),
-	m_moved(false)
+	m_moved(false),
+	m_god_mode(false)
 {
 	if (!m_instance_count) {
 		m_model = new Model("models/ship_centered.3ds");
@@ -175,8 +176,8 @@ void Ship::collide() {
 
 	play_sound("collide");
 
-	//m_health -= 100.0f * (m_velocity.magnitude() / m_max_speed);
-	m_health -= 20.0f;
+	m_health -= m_god_mode ? 0.0f : 100.0f * (m_velocity.magnitude() / (m_max_speed / 10.0f));
+	//m_health -= m_god_mode ? 0.0f : 10.0f;
 
 	if (m_health <= 0.0f) {
 		explode();
@@ -184,7 +185,7 @@ void Ship::collide() {
 }
 
 void Ship::collide_with_laser() {
-	m_health -= 20.0f;
+	m_health -= m_god_mode ? 0.0f : 10.0f;
 
 	if (m_health <= 0.0f) {
 		explode();

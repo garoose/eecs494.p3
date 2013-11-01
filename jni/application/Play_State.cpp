@@ -1,6 +1,7 @@
 #include <string>
 
 #include "Play_State.h"
+#include "Win_State.h"
 #include "Wall.h"
 
 using std::string;
@@ -150,10 +151,13 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 }
 
 void Play_State::reset() {
+	get_Controllers().reset_vibration_all();
 	m_map.reset();
 	m_player.reset();
 	m_time.reset();
 	m_finish->reset();
+	m_finish_delay.stop();
+	m_finish_delay.set(0.0f);
 	for (auto it = lasers.begin(); it != lasers.end();) {
 		auto laser = (*it);
 		it = lasers.erase(it);
@@ -161,15 +165,27 @@ void Play_State::reset() {
 	}
 }
 
+void Play_State::on_finish_cross() {
+	auto time = m_time.get_time();
+	reset();
+	get_Game().push_state(new Win_State(time));
+}
+
 void Play_State::perform_logic() {
 	const Time_HQ current_time = get_Timer_HQ().get_time();
 	float processing_time = float(current_time.get_seconds_since(time_passed));
 	time_passed = current_time;
 
+	/** Check if player has crossed the finish line **/
+	if (m_finish->crossed() && !m_finish_delay.seconds())
+		m_finish_delay.start();
+
+	if (m_finish_delay.seconds() > 1.5f)
+		on_finish_cross();
+
 	/** Check if player already exploded **/
-	if (m_player.is_exploded()) {
+	if (m_player.is_exploded())
 		reset();
-	}
 
 	/** Take care of controller vibration **/
 	m_bump.vibrate();
@@ -209,7 +225,7 @@ void Play_State::perform_logic() {
 	}
 
 	/** Air resistance **/
-	velocity += m_player.get_prev_velocity() * -0.007f;
+	velocity += m_player.get_prev_velocity() * -0.009f;
 
 	m_player.clear_prev_velocity();
 
@@ -248,17 +264,19 @@ void Play_State::perform_logic() {
 			auto laser = (*it);
 			laser->step(time_step);
 
-			//collide lasers with map
-			Map_Object *colliding = m_map.intersects(laser->get_body());
-			if (colliding) {
-				laser->collide();
-				laser_collide_with_object(colliding);
-			}
+			if (!laser->is_exploding()) {
+				//collide lasers with map
+				Map_Object *colliding = m_map.intersects(laser->get_body());
+				if (colliding) {
+					laser->collide();
+					laser_collide_with_object(colliding);
+				}
 
-			//collide lasers with ships
-			if (laser->intersects(m_player.get_body())) {
-				laser->collide();
-				m_player.collide_with_laser();
+				//collide lasers with ships
+				if (laser->intersects(m_player.get_body())) {
+					laser->collide();
+					m_player.collide_with_laser();
+				}
 			}
 
 			//remove any destroyed lasers
@@ -312,7 +330,6 @@ void Play_State::render_3d() {
 	vr.set_Light(1, m_player.get_headlight());
 	
 	m_map.render();
-	m_finish->render();
 
 	if (m_player.moved())
 		ship_rear_sprite.set_current_frame(1);
@@ -323,6 +340,9 @@ void Play_State::render_3d() {
 	for (auto it = lasers.begin(); it != lasers.end(); ++it) {
 		(*it)->render();
 	}
+
+	// render finish line last so we can see through it
+	m_finish->render();
 }
 
 void Play_State::render_3d_stop() {
@@ -350,7 +370,7 @@ void Play_State::render_2d() {
 	// render win message if finished
 	if (m_finish->crossed()) {
 		Font &fr = get_Fonts()["title"];
-		String msg = "You win";
+		String msg = "Finish Crossed!";
 		fr.render_text(
 			msg,
 			Point2f(get_Window().get_size().x / 2 - fr.get_text_width(msg), 100.0f - 0.5f * fr.get_text_height()),

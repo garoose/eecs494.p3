@@ -41,6 +41,7 @@ public:
 	virtual const std::string get_type() const override { return "Laser"; }
 
 	bool can_destroy() { return m_can_destroy; }
+	bool is_exploding() { return exploding.seconds() ? true : false; }
 
 	// Level 1
 	static Model *m_model;

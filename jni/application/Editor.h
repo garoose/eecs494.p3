@@ -73,6 +73,7 @@ public:
 	void set_selected(Map_Object *m) { selected = m; }
 
 	void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action) override;
+	void on_finish_cross() override;
 
 	void perform_logic() override;
 
@@ -81,7 +82,7 @@ public:
 	void adjust_scale(const Vector3f &delta);
 	void adjust_rotation(const Vector3f &delta);
 
-	const Point3f &get_player_create_position() { return m_player.get_position() + m_player.get_forward() * m_player.get_size().x; }
+	const Point3f get_player_create_position();
 
 	void render_3d() override;
 	void laser_collide_with_object(Map_Object *) override;

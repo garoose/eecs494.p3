@@ -5,6 +5,7 @@
 #include "Finish_Line.h"
 #include "Wall.h"
 #include "Floor1.h"
+#include "Floor2.h"
 #include "Crate.h"
 
 using namespace Zeni;
@@ -20,6 +21,9 @@ public:
 		}
 		if (type == "Floor1") {
 			return new Floor1(corner_, scale_, rotation_);
+		}
+		if (type == "Floor2") {
+			return new Floor2(corner_, scale_, rotation_);
 		}
 		if (type == "Crate") {
 			return new Crate(corner_, scale_, rotation_);

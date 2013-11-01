@@ -12,6 +12,9 @@ public:
 	~Lap_Time();
 
 	void reset();
+	
+	const Time_HQ::Second_Type get_time() { return m_time.seconds(); }
+	
 	void pause();
 	void unpause();
 	void lap();

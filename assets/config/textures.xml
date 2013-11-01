@@ -53,6 +53,10 @@ The following things are unsupported:
     <filepath>textures/floor1.png</filepath>
     <tile>1</tile>
   </FLOOR1.PNG>
+    <FLOOR2.PNG>
+    <filepath>textures/floor2.png</filepath>
+    <tile>1</tile>
+  </FLOOR2.PNG>
   <ship_back_off>
       <filepath>textures/ship_back.png</filepath>
       <tile>1</tile>
@@ -70,6 +74,10 @@ The following things are unsupported:
     <filepath>textures/ship_front.png</filepath>
     <tile>1</tile>
   </SHIP_FRO.PNG>
+  <FINISH_L.PNG>
+    <filepath>textures/finish_line.png</filepath>
+    <tile>1</tile>
+  </FINISH_L.PNG>
   
   <logo>
     <filepath>textures/logo.png</filepath>
@@ -103,6 +111,10 @@ The following things are unsupported:
     <filepath>textures/health.png</filepath>
     <tile>0</tile>
   </health>
+  <finish_msg>
+    <filepath>textures/finish_msg.png</filepath>
+    <tile>0</tile>
+  </finish_msg>
   <!--
   <one>
     <is_sprite>0</is_sprite>

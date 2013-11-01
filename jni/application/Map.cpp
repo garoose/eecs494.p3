@@ -75,27 +75,31 @@ Map_Object *Map::intersects(const Collision::Parallelepiped &p) const {
 }
 
 Map_Object *Map::get_next(const Map_Object *o) const {
-	if (!o)
+	if (list.empty())
 		return nullptr;
 
-	auto it = std::find(list.begin(), list.end(), o);
-	if (it == list.end())
-		return nullptr;
-	if (++it != list.end())
-		return (*it);
+	if (o) {
+		auto it = std::find(list.begin(), list.end(), o);
+		if (it == list.end())
+			return nullptr;
+		if (++it != list.end())
+			return (*it);
+	}
 
 	return (*list.begin());
 }
 
 Map_Object *Map::get_prev(const Map_Object *o) const {
-	if (!o)
+	if (list.empty())
 		return nullptr;
 
-	auto it = std::find(list.begin(), list.end(), o);
-	if (it == list.end())
-		return nullptr;
-	if (it != list.begin())
-		return (*--it);
+	if (o) {
+		auto it = std::find(list.begin(), list.end(), o);
+		if (it == list.end())
+			return nullptr;
+		if (it != list.begin())
+			return (*--it);
+	}
 
 	return (*--list.end());
 }

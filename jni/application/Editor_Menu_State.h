@@ -9,15 +9,16 @@ using namespace Zeni;
 class Editor_Menu_State : public Widget_Gamestate {
 
 public:
-	static Editor *m_editor;
-	static Map_Object *m_selected;
-
 	Editor_Menu_State(Editor *editor_)
-		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true)
+		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true),
+		trans_x(editor_),
+		trans_y(editor_),
+		trans_z(editor_),
+		scale_x(editor_),
+		scale_y(editor_),
+		scale_z(editor_),
+		save_button(editor_)
 	{
-		m_editor = editor_;
-		m_selected = m_editor->get_selected();
-
 		m_widgets.lend_Widget(trans);
 		m_widgets.lend_Widget(trans_x);
 		m_widgets.lend_Widget(trans_y);
@@ -48,9 +49,11 @@ public:
 	} trans;
 
 	class Translate_X : public Text_Box {
+		Map_Object *m_selected;
 	public:
-		Translate_X()
-			: Text_Box(Point2f(200.0f, 100.0f), Point2f(360.0f, 150.0f), "system_36_800x600", "transx", get_Colors()["white"], true)
+		Translate_X(Editor *e)
+			: Text_Box(Point2f(200.0f, 100.0f), Point2f(360.0f, 150.0f), "system_36_800x600", "transx", get_Colors()["white"], true),
+			m_selected(e->get_selected())
 		{
 			if (m_selected)
 				set_text(ftoa(m_selected->get_corner().x));
@@ -65,9 +68,11 @@ public:
 	} trans_x;
 
 	class Translate_Y : public Text_Box {
+		Map_Object *m_selected;
 	public:
-		Translate_Y()
-			: Text_Box(Point2f(380.0f, 100.0f), Point2f(550.0f, 150.0f), "system_36_800x600", "transy", get_Colors()["white"], true)
+		Translate_Y(Editor *e)
+			: Text_Box(Point2f(380.0f, 100.0f), Point2f(550.0f, 150.0f), "system_36_800x600", "transy", get_Colors()["white"], true),
+			m_selected(e->get_selected())
 		{
 			if (m_selected)
 				set_text(ftoa(m_selected->get_corner().y));
@@ -84,9 +89,11 @@ public:
 	} trans_y;
 
 	class Translate_Z : public Text_Box {
+		Map_Object *m_selected;
 	public:
-		Translate_Z()
-			: Text_Box(Point2f(570.0f, 100.0f), Point2f(730.0f, 150.0f), "system_36_800x600", "transz", get_Colors()["white"], true)
+		Translate_Z(Editor *e)
+			: Text_Box(Point2f(570.0f, 100.0f), Point2f(730.0f, 150.0f), "system_36_800x600", "transz", get_Colors()["white"], true),
+			m_selected(e->get_selected())
 		{
 			if (m_selected)
 				set_text(ftoa(m_selected->get_corner().z));
@@ -108,9 +115,11 @@ public:
 	} scale;
 
 	class Scale_X : public Text_Box {
+		Map_Object *m_selected;
 	public:
-		Scale_X()
-			: Text_Box(Point2f(200.0f, 200.0f), Point2f(360.0f, 250.0f), "system_36_800x600", "scalex", get_Colors()["white"], true)
+		Scale_X(Editor *e)
+			: Text_Box(Point2f(200.0f, 200.0f), Point2f(360.0f, 250.0f), "system_36_800x600", "scalex", get_Colors()["white"], true),
+			m_selected(e->get_selected())
 		{
 			if (m_selected)
 				set_text(ftoa(m_selected->get_scale().x));
@@ -125,9 +134,11 @@ public:
 	} scale_x;
 
 	class Scale_Y : public Text_Box {
+		Map_Object *m_selected;
 	public:
-		Scale_Y()
-			: Text_Box(Point2f(380.0f, 200.0f), Point2f(550.0f, 250.0f), "system_36_800x600", "scaley", get_Colors()["white"], true)
+		Scale_Y(Editor *e)
+			: Text_Box(Point2f(380.0f, 200.0f), Point2f(550.0f, 250.0f), "system_36_800x600", "scaley", get_Colors()["white"], true),
+			m_selected(e->get_selected())
 		{
 			if (m_selected)
 				set_text(ftoa(m_selected->get_scale().y));
@@ -137,16 +148,18 @@ public:
 
 		void on_change() override {
 			if (m_selected) {
-				Vector3f scale = m_selected->get_corner();
+				Vector3f scale = m_selected->get_scale();
 				m_selected->set_scale(Vector3f(scale.x, atof(get_text().c_str()), scale.z));
 			}
 		}
 	} scale_y;
 
 	class Scale_Z : public Text_Box {
+		Map_Object *m_selected;
 	public:
-		Scale_Z()
-			: Text_Box(Point2f(570.0f, 200.0f), Point2f(730.0f, 250.0f), "system_36_800x600", "scalez", get_Colors()["white"], true)
+		Scale_Z(Editor *e)
+			: Text_Box(Point2f(570.0f, 200.0f), Point2f(730.0f, 250.0f), "system_36_800x600", "scalez", get_Colors()["white"], true),
+			m_selected(e->get_selected())
 		{
 			if (m_selected)
 				set_text(ftoa(m_selected->get_scale().z));
@@ -161,9 +174,11 @@ public:
 	} scale_z;
 
 	class Save : public Text_Button {
+		Editor *m_editor;
 	public:
-		Save()
-			: Text_Button(Point2f(300.0f, 500.0f), Point2f(500.0f, 550.0f), "system_36_800x600", "Save Map")
+		Save(Editor *e)
+			: Text_Button(Point2f(300.0f, 500.0f), Point2f(500.0f, 550.0f), "system_36_800x600", "Save Map"),
+			m_editor(e)
 		{}
 
 		void on_accept() {
@@ -194,6 +209,3 @@ public:
 		}
 	} quit_button;
 };
-
-Editor *Editor_Menu_State::m_editor = nullptr;
-Map_Object *Editor_Menu_State::m_selected = nullptr;

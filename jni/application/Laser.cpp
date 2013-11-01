@@ -75,15 +75,10 @@ void Laser::step(const float &time_step) {
 }
 
 void Laser::create_body() {
-	if (exploding.seconds()) {
-		m_body = Parallelepiped();
-	}
-	else {
-		m_body = Parallelepiped(m_corner,
-			m_rotation * m_size.get_i(),
-			m_rotation * m_size.get_j(),
-			m_rotation * m_size.get_k());
-	}
+	m_body = Parallelepiped(m_corner,
+		m_rotation * m_size.get_i(),
+		m_rotation * m_size.get_j(),
+		m_rotation * m_size.get_k());
 
 	m_source->set_position(get_center());
 }
@@ -91,6 +86,7 @@ void Laser::create_body() {
 void Laser::collide() {
 	if (!exploding.seconds())
 		m_source->play();
+
 	expire.stop();
 	exploding.start();
 }
@@ -98,6 +94,7 @@ void Laser::collide() {
 void Laser::render() const {
 	if (exploding.seconds())
 		return;
+
 	auto rotation = m_rotation.get_rotation();
 
 	m_model->set_translate(m_corner);

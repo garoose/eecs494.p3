@@ -89,20 +89,13 @@ void Crate::adjust_yaw(const float &theta) {
 }
 
 void Crate::step(const float &time_step) {
-	if (m_exploded) {
-		create_body();
+	if (m_exploded)
 		return;
-	}
 
-	if (m_exploding.seconds()) {
-		m_explosion->set_keyframe(m_exploding.seconds() * 80.0f);
-
-		if (m_exploding.seconds() > 2.0f) {
-			m_exploded = true;
-			m_exploding.stop();
-			m_exploding.set(0.0f);
-		}
-		create_body();
+	if (m_exploding.seconds() > 2.0f) {
+		m_exploded = true;
+		m_exploding.stop();
+		m_exploding.set(0.0f);
 		return;
 	}
 
@@ -112,10 +105,10 @@ void Crate::step(const float &time_step) {
 
 void Crate::create_body() {
 	// Create the collision object
-		m_body = Parallelepiped(m_corner,
-			m_rotation * m_size.get_i(),
-			m_rotation * m_size.get_j(),
-			m_rotation * m_size.get_k());
+	m_body = Parallelepiped(m_corner,
+		m_rotation * m_size.get_i(),
+		m_rotation * m_size.get_j(),
+		m_rotation * m_size.get_k());
 
 	// Set sound source to center of the Crate
 	m_source->set_position(get_center());
@@ -136,6 +129,8 @@ void Crate::render() const {
 		m_model->render();
 
 	if (m_exploding.seconds()) {
+		m_explosion->set_translate(get_center());
+		m_explosion->set_keyframe(m_exploding.seconds() * 80.0f);
 		m_explosion->render();
 	}
 }
@@ -160,7 +155,6 @@ void Crate::collide_with_laser() {
 
 void Crate::explode() {
 	m_exploding.start();
-	m_explosion->set_translate(get_center());
 
 	play_sound();
 }

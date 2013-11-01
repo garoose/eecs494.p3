@@ -49,6 +49,7 @@ private:
 	Light m_dir_light;
 	Lap_Time m_time;
 	Finish_Line *m_finish;
+	Chronometer<Time> m_finish_delay;
 	Sprite ship_rear_sprite;
 
 	std::vector<Laser *> lasers;
@@ -107,6 +108,7 @@ protected:
 	Player m_player;
 	Map m_map;
 	virtual void laser_collide_with_object(Map_Object *colliding);
+	virtual void on_finish_cross();
 	virtual void render_3d();
 	virtual void render_3d_stop();
 	virtual void render_2d();

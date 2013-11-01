@@ -18,6 +18,7 @@ class Ship {
 
 	std::map<String, Sound_Source *> sounds;
 	float m_health;
+	bool m_god_mode;
 	bool m_exploded;
 	Chronometer<Time> m_exploding;
 
@@ -46,6 +47,7 @@ public:
 	~Ship();
 
 	const float &get_health() const { return m_health; }
+	void god_mode(const bool &active) { m_god_mode = active; }
 	bool is_exploding() const { return m_exploding.seconds() > 0.0f; }
 	bool is_exploded() const { return m_exploded; }
 

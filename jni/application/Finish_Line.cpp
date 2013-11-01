@@ -14,8 +14,7 @@ Finish_Line::Finish_Line(const Point3f &corner_,
 	m_crossed(false)
 {
 	if (!m_instance_count)
-		//m_model = new Model("models/crate.3ds");
-		m_model = nullptr;
+		m_model = new Model("models/finish.3ds");
 	++m_instance_count;
 
 	create_body();
@@ -52,7 +51,7 @@ void Finish_Line::adjust_yaw(const float &theta) {
 void Finish_Line::render() const {
 	const std::pair<Vector3f, float> rotation = m_rotation.get_rotation();
 
-	Video &vr = get_Video();
+	/*Video &vr = get_Video();
 
 	Vector3f dx = m_rotation * m_scale.get_i();
 	Vector3f dy = m_rotation * m_scale.get_j();
@@ -67,13 +66,13 @@ void Finish_Line::render() const {
 	Quadrilateral<Vertex3f_Texture> quad(p0, p1, p2, p3);
 	quad.fax_Material(&material);
 
-	vr.render(quad);
+	vr.render(quad);*/
 
-	/*m_model->set_translate(m_corner);
+	m_model->set_translate(m_corner);
 	m_model->set_scale(m_scale);
 	m_model->set_rotate(rotation.second, rotation.first);
 
-	m_model->render();*/
+	m_model->render();
 }
 
 bool Finish_Line::intersects(const Collision::Parallelepiped &p) const {

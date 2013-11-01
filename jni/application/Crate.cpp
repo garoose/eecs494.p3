@@ -8,6 +8,8 @@ using namespace Zeni::Collision;
 #define Crate_DEFAULT_UP_VECTOR            (Vector3f(0.0f, 0.0f, 1.0f))
 #define Crate_DEFAULT_LEFT_VECTOR          (Vector3f(0.0f, 1.0f, 0.0f))
 
+static Sprite m_sprite;
+
 Crate::Crate(const Point3f &m_corner_, const Vector3f &m_scale_,
 	const Quaternion &m_rotation_)
 	: m_corner(m_corner_),
@@ -22,6 +24,10 @@ Crate::Crate(const Point3f &m_corner_, const Vector3f &m_scale_,
 		m_explosion = new Model("models/explosion.3ds");
 	}
 	++m_instance_count;
+
+	get_Textures().lend("CRATE.PNG", &m_sprite, true);
+	m_sprite.append_frame("crate_normal");
+	m_sprite.append_frame("crate_hit");
 
 	m_size = m_model->get_extents().upper_bound - m_model->get_extents().lower_bound;
 	m_size = m_size.multiply_by(m_scale);
@@ -68,6 +74,8 @@ void Crate::reset() {
 	m_exploded = false;
 	m_exploding.stop();
 	m_exploding.set(0.0f);
+	m_flash.stop();
+	m_flash.set(0.0f);
 }
 
 void Crate::adjust_pitch(const float &phi) {
@@ -99,6 +107,11 @@ void Crate::step(const float &time_step) {
 		return;
 	}
 
+	if (m_flash.seconds() > 0.2f) {
+		m_flash.stop();
+		m_flash.set(0.0f);
+	}
+
 	m_corner += time_step * m_velocity;
 	create_body();
 }
@@ -125,6 +138,9 @@ void Crate::render() const {
 	m_model->set_scale(m_scale);
 	m_model->set_rotate(rotation.second, rotation.first);
 
+	if (m_flash.seconds() > 0.0f)
+		m_sprite.set_current_frame(1);
+
 	if (m_exploding.seconds() <= 0.1f)
 		m_model->render();
 
@@ -134,6 +150,8 @@ void Crate::render() const {
 		m_explosion->set_keyframe(m_exploding.seconds() * 80.0f);
 		m_explosion->render();
 	}
+
+	m_sprite.set_current_frame(0);
 }
 
 bool Crate::intersects(const Collision::Parallelepiped &p) const {
@@ -147,6 +165,8 @@ void Crate::collide() {
 }
 
 void Crate::collide_with_laser() {
+	m_flash.start();
+
 	m_health -= 50.0f;
 
 	if (m_health <= 0.0f) {

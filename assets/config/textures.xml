@@ -37,9 +37,18 @@ The following things are unsupported:
   4. Anything other than 8 bits per channel
 -->
 <Textures>
-  <CRATE.PNG>
+  <crate_normal>
     <filepath>textures/crate_light.png</filepath>
     <tile>1</tile>
+  </crate_normal>
+  <crate_hit>
+    <filepath>textures/crate_light_hit.png</filepath>
+    <tile>1</tile>
+  </crate_hit>
+  <CRATE.PNG>
+    <is_sprite>1</is_sprite>
+    <token>crate_normal</token>
+    <token>crate_hit</token>
   </CRATE.PNG>
   <EXPLODE.PNG>
     <filepath>textures/explode.png</filepath>

@@ -24,7 +24,6 @@ struct Level {
 static std::vector<Level> levels;
 static std::vector<Level>::iterator selected_map;
 static Play_State *m_play_state;
-//static std::string selected;
 
 static const Vector2f button_size = Vector2f(120.0f, 50.0f);
 static const float row[3] = { 200.0f, 320.0f, 390.0f };
@@ -71,9 +70,9 @@ public:
 	}
 
 	void on_uncover() override {
-		delete m_play_state;
-
-		get_Game().pop_state();
+		//delete m_play_state;
+		m_play_state = nullptr;
+		//get_Game().pop_state();
 	}
 
 	void on_key(const SDL_KeyboardEvent &event) override {
@@ -114,8 +113,8 @@ public:
 		{}
 
 		void on_accept() override {
-			Play_State *s = new Play_State(selected_map->fname);
-			get_Game().push_state(s);
+			m_play_state = new Play_State(selected_map->fname);
+			get_Game().push_state(m_play_state);
 		}
 
 	} play_button;

@@ -11,8 +11,9 @@ class Map_Object {
 
 public:
 	Map_Object() {}
+	virtual ~Map_Object() { }
 
-	virtual const std::string get_type() const= 0;
+	virtual const std::string get_type() const = 0;
 
 	virtual void reset() {}
 

@@ -16,6 +16,7 @@ class Crate : public Map_Object {
 
 	float m_health;
 	bool m_exploded;
+	Chronometer<Time> m_flash;
 	Chronometer<Time> m_exploding;
 
 	// Level 2

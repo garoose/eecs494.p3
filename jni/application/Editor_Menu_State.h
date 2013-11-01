@@ -34,12 +34,15 @@ public:
 
 		m_widgets.lend_Widget(delete_button);
 		m_widgets.lend_Widget(save_button);
+		m_widgets.lend_Widget(back_button);
 		m_widgets.lend_Widget(close_button);
 		m_widgets.lend_Widget(quit_button);
 	}
 
 	void on_key(const SDL_KeyboardEvent &event) override {
 		if (event.keysym.sym == SDLK_ESCAPE && event.state == SDL_PRESSED)
+			get_Game().pop_state();
+		else if (event.keysym.sym == SDLK_ESCAPE && event.state == SDL_PRESSED)
 			get_Game().pop_state();
 		else
 			Widget_Gamestate::on_key(event);
@@ -205,7 +208,7 @@ public:
 		Editor *m_editor;
 	public:
 		Save(Editor *e)
-			: Text_Button(Point2f(300.0f, 500.0f), Point2f(500.0f, 550.0f), "system_36_800x600", "Save Map"),
+			: Text_Button(Point2f(300.0f, 470.0f), Point2f(500.0f, 580.0f), "system_36_800x600", "Save Map"),
 			m_editor(e)
 		{}
 
@@ -217,7 +220,7 @@ public:
 	class Close : public Text_Button {
 	public:
 		Close()
-			: Text_Button(Point2f(50.0f, 500.0f), Point2f(150.0f, 550.0f), "system_36_800x600", "Close")
+			: Text_Button(Point2f(0.0f, 470.0f), Point2f(200.0f, 520.0f), "system_36_800x600", "Close Window")
 		{}
 
 		void on_accept() {
@@ -225,15 +228,26 @@ public:
 		}
 	} close_button;
 
-	class Quit : public Text_Button {
+	class To_Menu : public Text_Button {
 	public:
-		Quit()
-			: Text_Button(Point2f(650.0f, 500.0f), Point2f(750.0f, 550.0f), "system_36_800x600", "Quit")
+		To_Menu()
+			: Text_Button(Point2f(0.0f, 530.0f), Point2f(200.0f, 580.0f), "system_36_800x600", "Back to Menu")
 		{}
 
 		void on_accept() {
 			get_Game().pop_state();
 			get_Game().pop_state();
+		}
+	} back_button;
+
+	class Quit : public Text_Button {
+	public:
+		Quit()
+			: Text_Button(Point2f(600.0f, 500.0f), Point2f(780.0f, 550.0f), "system_36_800x600", "Quit")
+		{}
+
+		void on_accept() {
+			exit(0);
 		}
 	} quit_button;
 };

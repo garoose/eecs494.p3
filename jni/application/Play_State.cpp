@@ -412,7 +412,7 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 
 	/** collide camera with walls **/
 	if (m_map.intersects(m_player.get_camera_body())) {
-		m_player.adjust_camera_offset(Vector3f(-0.4f, 0.0f, 0.0f));
+		m_player.adjust_camera_offset(Vector3f(-0.6f, 0.0f, 0.0f));
 	} else {
 		m_player.adjust_camera_offset(Vector3f(0.2f, 0.0f, 0.0f));
 	}

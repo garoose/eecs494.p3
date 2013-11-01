@@ -407,7 +407,7 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 	if (!m_noclip && colliding) {
 		colliding->collide();
 		has_collided = true;
-		bounce = -1.0f;
+		bounce = -0.8f;
 	}
 
 	/** collide camera with walls **/

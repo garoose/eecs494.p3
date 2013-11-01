@@ -101,7 +101,6 @@ void Ship::adjust_pitch(const float &phi) {
 		return;
 
 	m_rotation *= Quaternion(0.0f, phi, 0.0f, 0.0f);
-	//m_prev_velocity = Quaternion(0.0f, -phi, 0.0f, 0.0f) * m_prev_velocity;
 }
 
 void Ship::adjust_roll(const float &rho) {
@@ -109,7 +108,6 @@ void Ship::adjust_roll(const float &rho) {
 		return;
 
 	m_rotation *= Quaternion(0.0f, 0.0f, rho, 0.0f);
-	//m_prev_velocity = Quaternion(0.0f, 0.0f, rho, 0.0f) * m_prev_velocity;
 }
 
 void Ship::adjust_yaw(const float &theta) {
@@ -117,7 +115,6 @@ void Ship::adjust_yaw(const float &theta) {
 		return;
 
 	m_rotation *= Quaternion(theta, 0.0f, 0.0f, 0.0f);
-	//m_prev_velocity = Quaternion(theta, 0.0f, 0.0f, 0.0f) * m_prev_velocity;
 }
 
 void Ship::step(const float &time_step) {

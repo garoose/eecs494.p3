@@ -10,8 +10,6 @@ public:
 		: Widget_Gamestate(std::make_pair(Point2f(), Point2f(800.0f, 600.0f)), true),
 		time_taken(time_)
 	{
-		//win_text.set_justify(ZENI_CENTER);
-		//m_widgets.lend_Widget(win_text);
 		m_widgets.lend_Widget(time_taken);
 		m_widgets.lend_Widget(restart_button);
 		m_widgets.lend_Widget(quit_button);
@@ -42,7 +40,7 @@ private:
 	class Restart : public Text_Button {
 	public:
 		Restart()
-			: Text_Button(Point2f(50.0f, 500.0f), Point2f(250.0f, 550.0f), "system_36_800x600", "Restart")
+			: Text_Button(Point2f(50.0f, 500.0f), Point2f(250.0f, 550.0f), "system_36_800x600", "Restart Level")
 		{}
 
 		void on_accept() {
@@ -53,7 +51,7 @@ private:
 	class Quit : public Text_Button {
 	public:
 		Quit()
-			: Text_Button(Point2f(550.0f, 500.0f), Point2f(750.0f, 550.0f), "system_36_800x600", "Quit")
+			: Text_Button(Point2f(550.0f, 500.0f), Point2f(750.0f, 550.0f), "system_36_800x600", "Back to Menu")
 		{}
 
 		void on_accept() {

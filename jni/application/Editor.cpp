@@ -1,5 +1,7 @@
 #include "Editor.h"
 
+#include "Editor_Menu_State.h"
+
 class Object_Creator : public Widget_Gamestate {
 	static Editor *editor;
 	static Map_Object_Factory factory;
@@ -77,135 +79,6 @@ Editor *Object_Creator::editor;
 Map_Object_Factory Object_Creator::factory;
 String Object_Creator::type;
 
-class Editor_Menu_State : public Widget_Gamestate {
-
-public:
-	static Editor *m_editor;
-	static Map_Object *m_selected;
-
-	Editor_Menu_State(Editor *editor_)
-		: Widget_Gamestate(std::make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)), true)
-	{
-		m_editor = editor_;
-		m_selected = m_editor->get_selected();
-
-		m_widgets.lend_Widget(trans);
-		m_widgets.lend_Widget(trans_x);
-		m_widgets.lend_Widget(trans_y);
-		m_widgets.lend_Widget(trans_z);
-
-		m_widgets.lend_Widget(save_button);
-		m_widgets.lend_Widget(close_button);
-		m_widgets.lend_Widget(quit_button);
-	}
-
-	void on_key(const SDL_KeyboardEvent &event) override {
-		if (event.keysym.sym == SDLK_ESCAPE && event.state == SDL_PRESSED)
-			get_Game().pop_state();
-		else
-			Widget_Gamestate::on_key(event);
-	}
-
-	class Translate : public Text_Box {
-	public:
-		Translate()
-			: Text_Box(Point2f(50.0f, 100.0f), Point2f(180.0f, 150.0f), "system_36_800x600", "Translate:", get_Colors()["white"])
-		{}
-	} trans;
-
-	class Translate_X : public Text_Box {
-	public:
-		Translate_X()
-			: Text_Box(Point2f(200.0f, 100.0f), Point2f(350.0f, 150.0f), "system_36_800x600", "transx", get_Colors()["white"], true)
-		{
-			if (m_selected)
-				set_text(ftoa(m_selected->get_corner().x));
-		}
-
-		void on_change() override {
-			if (m_selected) {
-				Point3f corner = m_selected->get_corner();
-				m_selected->set_translate(Vector3f(atof(get_text().c_str()), corner.y, corner.z));
-			}
-		}
-	} trans_x;
-
-	class Translate_Y : public Text_Box {
-	public:
-		Translate_Y()
-			: Text_Box(Point2f(370.0f, 100.0f), Point2f(530.0f, 150.0f), "system_36_800x600", "transy", get_Colors()["white"], true)
-		{
-			if (m_selected)
-				set_text(ftoa(m_selected->get_corner().y));
-			else
-				set_editable(false);
-		}
-
-		void on_change() override {
-			if (m_selected) {
-				Point3f corner = m_selected->get_corner();
-				m_selected->set_translate(Vector3f(corner.x, atof(get_text().c_str()), corner.z));
-			}
-		}
-	} trans_y;
-
-	class Translate_Z : public Text_Box {
-	public:
-		Translate_Z()
-		: Text_Box(Point2f(550.0f, 100.0f), Point2f(690.0f, 150.0f), "system_36_800x600", "transz", get_Colors()["white"], true)
-		{
-			if (m_selected)
-				set_text(ftoa(m_selected->get_corner().z));
-		}
-
-		void on_change() override {
-			if (m_selected) {
-				Point3f corner = m_selected->get_corner();
-				m_selected->set_translate(Vector3f(corner.x, corner.y, atof(get_text().c_str())));
-			}
-		}
-	} trans_z;
-
-	class Save : public Text_Button {
-	public:
-		Save()
-		: Text_Button(Point2f(400.0f, 500.0f), Point2f(600.0f, 550.0f), "system_36_800x600", "Save Map")
-		{}
-
-		void on_accept() {
-			m_editor->save_map();
-		}
-	} save_button;
-
-	class Close : public Text_Button {
-	public:
-		Close()
-			: Text_Button(Point2f(50.0f, 500.0f), Point2f(150.0f, 550.0f), "system_36_800x600", "Close")
-		{}
-
-		void on_accept() {
-			get_Game().pop_state();
-		}
-	} close_button;
-
-	class Quit : public Text_Button {
-	public:
-		Quit()
-		: Text_Button(Point2f(200.0f, 500.0f), Point2f(300.0f, 550.0f), "system_36_800x600", "Quit")
-		{}
-
-		void on_accept() {
-			get_Game().pop_state();
-			get_Game().pop_state();
-		}
-	} quit_button;
-};
-
-Editor *Editor_Menu_State::m_editor = nullptr;
-Map_Object *Editor_Menu_State::m_selected = nullptr;
-
-
-
 Editor::Editor(const std::string &map_name_)
 : Play_State(map_name_),
 parameter(param_translate),
@@ -218,6 +91,9 @@ selected(nullptr)
 
 	m_menu = new Editor_Menu_State(this);
 	m_creator = new Object_Creator(this);
+
+	// select the first object (if there is one)
+	selected = m_map.get_next(nullptr);
 }
 
 Editor::~Editor() {
@@ -241,21 +117,25 @@ void Editor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, co
 		m_controls.set_key(Event_Type(action), confidence ? true : false);
 		break;
 
-	case E_Z:
+	case E_Z: // Switch to translation edit
 		if (confidence == 1.0f)
 			parameter = param_translate;
 		break;
-	case E_X:
+	case E_X: // Switch to scale edit
 		if (confidence == 1.0f)
 			parameter = param_scale;
 		break;
-	case E_C:
+	case E_C: // Switch to rotation edit
 		if (confidence == 1.0f)
 			parameter = param_rotation;
 		break;
-	case E_N:
+	case E_N: // bring up object creator
 		if (confidence == 1.0f)
 			get_Game().push_state(new Object_Creator(this));
+		break;
+	case E_F: // select finish line
+		if (confidence == 1.0f)
+			selected = m_map.get_finish();
 		break;
 	case E_RIGHT:
 		if (confidence == 1.0f)
@@ -285,12 +165,10 @@ void Editor::perform_logic() {
 		adjust(Vector3f(-1.0f, 0.0f, 0.0f));
 	if (m_controls.get_key(E_D))
 		adjust(Vector3f(0.0f, -1.0f, 0.0f));
-	if (m_controls.get_key(E_Q)) {
-			adjust(Vector3f(0.0f, 0.0f, -1.0f));
-	}
-	if (m_controls.get_key(E_E)) {
-			adjust(Vector3f(0.0f, 0.0f, 1.0f));
-	}
+	if (m_controls.get_key(E_Q))
+		adjust(Vector3f(0.0f, 0.0f, -1.0f));
+	if (m_controls.get_key(E_E))
+		adjust(Vector3f(0.0f, 0.0f, 1.0f));
 
 	Play_State::perform_logic();
 }
@@ -329,12 +207,12 @@ void Editor::adjust_rotation(const Vector3f &delta) {
 	}
 }
 
-void Editor::render() {
-	Play_State::render();
+void Editor::render_3d() {
+	Play_State::render_3d();
 
 	if (selected) {
 		m_model->set_translate(selected->get_center());
-		m_model->set_scale(Vector3f(100.0f, 100.0f, 100.0f));
+		m_model->set_scale(Vector3f(10.0f, 10.0f, 10.0f));
 		m_model->render();
 	}
 }

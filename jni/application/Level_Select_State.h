@@ -13,8 +13,7 @@ using namespace Zeni;
 struct Level {
 	Level(const std::string &name_, const std::string &fname_)
 	: name(name_), fname(fname_)
-	{
-	}
+	{}
 
 	std::string name;
 	std::string fname;

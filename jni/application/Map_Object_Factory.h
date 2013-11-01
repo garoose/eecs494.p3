@@ -2,6 +2,7 @@
 
 #include <zenilib.h>
 
+#include "Finish_Line.h"
 #include "Wall.h"
 #include "Floor1.h"
 #include "Crate.h"
@@ -23,6 +24,8 @@ public:
 		if (type == "Crate") {
 			return new Crate(corner_, scale_, rotation_);
 		}
+		if (type == "Finish_Line")
+			return new Finish_Line(corner_, scale_, rotation_);
 
 		return nullptr;
 	}

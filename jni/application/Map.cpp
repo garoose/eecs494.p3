@@ -5,18 +5,11 @@
 #include <vector>
 #include <algorithm>
 
+#include "Map.h"
+
 using std::string;
 using std::cout; using std::endl;
 using std::vector;
-
-#include "Map.h"
-#include "Map_Object_Factory.h"
-
-#include "Wall.h"
-#include "Floor1.h"
-#include "Ship.h"
-#include "Crate.h"
-#include "Finish_Line.h"
 
 Map::Map(const string &file_name_) {
 	file_name = file_name_;
@@ -55,6 +48,8 @@ Map::~Map() {
 }
 
 void Map::reset() {
+	m_finish->reset();
+
 	for (auto it = list.begin(); it != list.end(); ++it)
 		(*it)->reset();
 }
@@ -80,25 +75,27 @@ Map_Object *Map::intersects(const Collision::Parallelepiped &p) const {
 }
 
 Map_Object *Map::get_next(const Map_Object *o) const {
-	if (o) {
-		auto it = std::find(list.begin(), list.end(), o);
-		if (it == list.end())
-			return nullptr;
-		if (++it != list.end())
-			return (*it);
-	}
+	if (!o)
+		return nullptr;
+
+	auto it = std::find(list.begin(), list.end(), o);
+	if (it == list.end())
+		return nullptr;
+	if (++it != list.end())
+		return (*it);
 
 	return (*list.begin());
 }
 
 Map_Object *Map::get_prev(const Map_Object *o) const {
-	if (o) {
-		auto it = std::find(list.begin(), list.end(), o);
-		if (it == list.end())
-			return nullptr;
-		if (it != list.begin())
-			return (*--it);
-	}
+	if (!o)
+		return nullptr;
+
+	auto it = std::find(list.begin(), list.end(), o);
+	if (it == list.end())
+		return nullptr;
+	if (it != list.begin())
+		return (*--it);
 
 	return (*--list.end());
 }
@@ -119,16 +116,11 @@ void Map::write_to_file(const string &fname) {
 	std::ofstream file(fname);
 	string line;
 
+	//print finish line first
+	print_object(m_finish, file);
+
 	for (auto it = list.begin(); it != list.end(); ++it) {
-		auto o = (*it);
-		auto corner = o->get_corner();
-		auto scale = o->get_scale();
-		auto rotation = o->get_rotation().get_rotation();
-		auto axis = rotation.first;
-		auto angle = rotation.second;
-		file << o->get_type() << " " << corner.x << " " << corner.y << " " << corner.z
-			<< " " << scale.x << " " << scale.y << " " << scale.z << " "
-			<< axis.x << " " << axis.y << " " << axis.z << " " << angle << endl;
+		print_object((*it), file);
 	}
 
 	file.close();
@@ -137,22 +129,16 @@ void Map::write_to_file(const string &fname) {
 void Map::read_from_file(const string &fname) {
 	std::ifstream file(fname);
 	string line;
-	unsigned int len = 0;
 
-	Map_Object_Factory factory;
+	//first line should be finish line, if not assume it's a new map and create a new finish line
+	if (getline(file, line))
+		m_finish = dynamic_cast<Finish_Line *>(parse_line(line));
+	else
+		m_finish = new Finish_Line(Point3f(), Vector3f(10.0f, 10.0f, 10.0f));
 
 	//Read in object list
 	while (getline(file, line)) {
-		if (line[0] == '#')
-			continue;
-
-		auto words = split_string(line);
-
-		Map_Object *o = factory.make(String(words[0]),
-			Point3f(atof(words[1].c_str()), atof(words[2].c_str()), atof(words[3].c_str())),
-			Vector3f(atof(words[4].c_str()), atof(words[5].c_str()), atof(words[6].c_str())),
-			Quaternion::Axis_Angle(Vector3f(atof(words[7].c_str()), atof(words[8].c_str()), atof(words[9].c_str())),
-				atof(words[10].c_str())));
+		Map_Object *o = parse_line(line);
 
 		if (o) {
 			list.push_back(o);
@@ -162,8 +148,29 @@ void Map::read_from_file(const string &fname) {
 	file.close();
 }
 
+Map_Object *Map::parse_line(const string &line) {
+	auto words = split_string(line);
+
+	return factory.make(String(words[0]),
+		Point3f(atof(words[1].c_str()), atof(words[2].c_str()), atof(words[3].c_str())),
+		Vector3f(atof(words[4].c_str()), atof(words[5].c_str()), atof(words[6].c_str())),
+		Quaternion::Axis_Angle(Vector3f(atof(words[7].c_str()), atof(words[8].c_str()), atof(words[9].c_str())),
+		atof(words[10].c_str())));
+}
+
 vector<string> Map::split_string(string line) {
 	std::istringstream iss(line);
 	std::istream_iterator<string> begin(iss), end;
 	return std::vector<string>(begin, end);
+}
+
+void Map::print_object(const Map_Object *o, std::ofstream &file) {
+	auto corner = o->get_corner();
+	auto scale = o->get_scale();
+	auto rotation = o->get_rotation().get_rotation();
+	auto axis = rotation.first;
+	auto angle = rotation.second;
+	file << o->get_type() << " " << corner.x << " " << corner.y << " " << corner.z
+		<< " " << scale.x << " " << scale.y << " " << scale.z << " "
+		<< axis.x << " " << axis.y << " " << axis.z << " " << angle << endl;
 }

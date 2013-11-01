@@ -83,7 +83,7 @@ public:
 
 	const Point3f &get_player_create_position() { return m_player.get_position() + m_player.get_forward() * m_player.get_size().x; }
 
-	void render() override;
+	void render_3d() override;
 	void laser_collide_with_object(Map_Object *) override;
 
 	void insert_object(Map_Object *mo) {

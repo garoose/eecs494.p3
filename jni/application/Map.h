@@ -7,6 +7,7 @@
 #include "Wall.h"
 #include "Map_Object.h"
 #include "Finish_Line.h"
+#include "Map_Object_Factory.h"
 
 using namespace Zeni;
 
@@ -14,6 +15,8 @@ class Map {
 	std::string file_name;
 	std::vector<Map_Object *> list;
 	Finish_Line *m_finish;
+
+	Map_Object_Factory factory;
 
 public:
 	Map(const std::string &file_name_);
@@ -38,6 +41,8 @@ public:
 
 	void write_to_file(const std::string &fname);
 	void read_from_file(const std::string &fname);
+	Map_Object *parse_line(const std::string &line);
+	void print_object(const Map_Object *o, std::ofstream &file);
 
 private:
 	std::vector<std::string> split_string(std::string line);

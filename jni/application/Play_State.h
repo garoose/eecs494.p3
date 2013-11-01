@@ -36,6 +36,7 @@ enum Event_Type {
 	E_X,
 	E_C,
 	E_N,
+	E_F,
 	E_RIGHT,
 	E_LEFT,
 	E_TAB,
@@ -46,9 +47,9 @@ enum Event_Type {
 class Play_State : public Gamestate_II {
 private:
 	Light m_dir_light;
-	Ship m_enemy;
 	Lap_Time m_time;
-	Finish_Line m_finish;
+	Finish_Line *m_finish;
+	Sprite ship_rear_sprite;
 
 	std::vector<Laser *> lasers;
 
@@ -106,8 +107,9 @@ protected:
 	Player m_player;
 	Map m_map;
 	virtual void laser_collide_with_object(Map_Object *colliding);
-	void render_3d() const;
-	void render_2d() const;
+	virtual void render_3d();
+	virtual void render_3d_stop();
+	virtual void render_2d();
 
 public:
 	Play_State(const std::string &map_name_);
@@ -117,13 +119,13 @@ public:
 	void on_cover();
 	void on_uncover();
 
-	void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action);
+	virtual void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action);
 
-	void reset();
+	virtual void reset();
 
-	void perform_logic();
+	void perform_logic() override;
 
-	void render();
+	virtual void render() override;
 
 private:
 	void partial_ship_step(const float &time_step, const Vector3f &velocity);
@@ -134,8 +136,6 @@ private:
 	void partial_laser_step(const float &time_step, const Vector3f &velocity);
 
 	void render_plane(const Point3f &top_left, const Point3f &bottom_right, const Color &c);
-
-	bool check_collisions();
 
 	bool m_controller_mouse;
 	Zeni::Window::Mouse_State m_mouse_state;

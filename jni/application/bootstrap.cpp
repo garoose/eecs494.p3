@@ -5,6 +5,7 @@
  */
 
 #include <zenilib.h>
+#include <vector>
 
 #include "Play_State.h"
 #include "Level_Select_State.h"
@@ -21,10 +22,22 @@ class Instructions_State : public Widget_Gamestate {
   Instructions_State(const Instructions_State &);
   Instructions_State operator=(const Instructions_State &);
 
+  std::vector<String> pages;
+  std::vector<String>::iterator cur;
+
 public:
   Instructions_State()
-    : Widget_Gamestate(make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)))
+    : Widget_Gamestate(make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f))),
+	next_button(this),
+	prev_button(this)
   {
+	  pages.push_back("instructions");
+	  pages.push_back("instructions2");
+
+	  cur = pages.begin();
+
+	  m_widgets.lend_Widget(prev_button);
+	  m_widgets.lend_Widget(next_button);
   }
 
 private:
@@ -33,12 +46,50 @@ private:
       get_Game().pop_state();
   }
 
+  void next_page() {
+	  if (++cur == pages.end())
+		  cur = pages.begin();
+  }
+
+  void prev_page() {
+	  if (cur != pages.begin())
+		  --cur;
+	  else
+		  cur = --pages.end();
+  }
+
+  class Prev : public Text_Button {
+	  Instructions_State *s;
+  public:
+	  Prev(Instructions_State *s_)
+		  : Text_Button(Point2f(20.0f, 540.0f), Point2f(120.0f, 580.0f), "system_36_800x600", "Prev"),
+		  s(s_)
+	  {}
+
+	  void on_accept() {
+		  s->next_page();
+	  }
+  } prev_button;
+
+  class Next : public Text_Button {
+	  Instructions_State *s;
+  public:
+	  Next(Instructions_State *s_)
+		  : Text_Button(Point2f(680.0f, 540.0f), Point2f(780.0f, 580.0f), "system_36_800x600", "Next"),
+		  s(s_)
+	  {}
+
+	  void on_accept() {
+		  s->next_page();
+	  }
+  } next_button;
+
   void render() {
 	  render_image("stars", Point2f(), Point2f(800, 600));
 
-	  Widget_Gamestate::render();
+	  render_image((*cur), Point2f(), Point2f(800, 600));
 
-	  render_image("instructions", Point2f(), Point2f(800, 600));
+	  Widget_Gamestate::render();
   }
 };
 

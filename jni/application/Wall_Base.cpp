@@ -68,7 +68,7 @@ void Wall_Base::adjust_yaw(const float &theta) {
 	create_body();
 }
 
-void Wall_Base::step(const float &time_step) {
+void Wall_Base::step(const float &) {
 	create_body();
 }
 

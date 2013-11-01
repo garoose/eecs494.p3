@@ -9,11 +9,15 @@ Play_State::Play_State(const string &map_name_)
 	: m_map(map_name_),
 	m_moved(false),
 	m_noclip(false),
-	m_player(Camera(Point3f(-100.0f, -80.0f, 50.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(1.0f, 1.0f, 1.0f)),
-	m_enemy(Point3f(20.0f, -80.0f, 30.0f), Vector3f(1.0f, 1.0f, 1.0f), 100.0f, 1.0f),
-	m_finish(Point3f(560.0f, 792.0f, -365.0f), Vector3f(-60.0f, -5.0f, -60.0f))
+	m_player(Camera(Point3f(0.0f, 0.0f, 0.0f), Quaternion(), 1.0f, 10000.0f), Vector3f(1.0f, 1.0f, 1.0f))
 {
 	set_pausable(true);
+
+	m_finish = m_map.get_finish();
+
+	get_Textures().lend("SHIP_BAC.PNG", &ship_rear_sprite, true);
+	ship_rear_sprite.append_frame("ship_back_off");
+	ship_rear_sprite.append_frame("ship_back_on");
 
 	m_dir_light.set_light_type(LIGHT_DIRECTIONAL);
 	m_dir_light.diffuse = Color(1.0f, 0.4f, 0.4f, 0.f);
@@ -44,6 +48,7 @@ Play_State::Play_State(const string &map_name_)
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_x), E_X);
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_c), E_C);
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_n), E_N);
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_f), E_F);
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), E_RIGHT);
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), E_LEFT);
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_TAB), E_TAB);
@@ -147,9 +152,8 @@ void Play_State::on_event(const Zeni_Input_ID &id, const float &confidence, cons
 void Play_State::reset() {
 	m_map.reset();
 	m_player.reset();
-	m_enemy.reset();
 	m_time.reset();
-	m_finish.reset();
+	m_finish->reset();
 	for (auto it = lasers.begin(); it != lasers.end();) {
 		auto laser = (*it);
 		it = lasers.erase(it);
@@ -231,16 +235,13 @@ void Play_State::perform_logic() {
 			time_step = processing_time;
 
 		/** Try to move on each axis **/
-		partial_ship_step(time_step, x_vel);
-		partial_ship_step(time_step, y_vel);
-		partial_ship_step(time_step, z_vel);
-
 		partial_ship_pitch(time_step, m_controls.joy_y * 1.6f);
 		partial_ship_yaw(time_step, m_controls.joy_x * 2.2f);
 		partial_ship_roll(time_step, (m_controls.roll_right - m_controls.roll_left) * 1.7f);
 
-		//move enemy ships
-		m_enemy.step(time_step);
+		partial_ship_step(time_step, x_vel);
+		partial_ship_step(time_step, y_vel);
+		partial_ship_step(time_step, z_vel);
 
 		//step lasers
 		for (auto it = lasers.begin(); it != lasers.end();) {
@@ -258,10 +259,6 @@ void Play_State::perform_logic() {
 			if (laser->intersects(m_player.get_body())) {
 				laser->collide();
 				m_player.collide_with_laser();
-			}
-			if (laser->intersects(m_enemy.get_body())) {
-				laser->collide();
-				m_enemy.collide_with_laser();
 			}
 
 			//remove any destroyed lasers
@@ -297,10 +294,11 @@ void Play_State::laser_collide_with_object(Map_Object *colliding) {
 
 void Play_State::render() {
 	render_3d();
+	render_3d_stop();
 	render_2d();
 }
 
-void Play_State::render_3d() const {
+void Play_State::render_3d() {
 	Video &vr = get_Video();
 
 	// set player camera as view point
@@ -312,33 +310,28 @@ void Play_State::render_3d() const {
 	//vr.set_ambient_lighting(Color(1.0f, 0.1f, 0.1f, 0.1f));
 	//vr.set_Light(0, m_dir_light);
 	vr.set_Light(1, m_player.get_headlight());
-	vr.set_Light(2, m_enemy.get_headlight());
 	
-
 	m_map.render();
-	m_finish.render();
+	m_finish->render();
 
-	Sprite sprite;
-	get_Textures().lend("SHIP_BAC.PNG", &sprite, true);
-	sprite.append_frame("ship_back_off");
-	sprite.append_frame("ship_back_on");
-	if (m_player.moved()) {
-		sprite.set_current_frame(1);
-	}
+	if (m_player.moved())
+		ship_rear_sprite.set_current_frame(1);
 	m_player.render();
-	sprite.set_current_frame(0);
-	m_enemy.render();
+	ship_rear_sprite.set_current_frame(0);
 
 	//render lasers
 	for (auto it = lasers.begin(); it != lasers.end(); ++it) {
 		(*it)->render();
 	}
+}
 
+void Play_State::render_3d_stop() {
+	Video &vr = get_Video();
 	// Restore normal lighting
 	vr.set_lighting(false);
 }
 
-void Play_State::render_2d() const {
+void Play_State::render_2d() {
 	Video &vr = get_Video();
 
 	// Render HUD
@@ -355,7 +348,7 @@ void Play_State::render_2d() const {
 	render_image("crosshair", window_center - crosshair_size, window_center + crosshair_size);
 
 	// render win message if finished
-	if (m_finish.crossed()) {
+	if (m_finish->crossed()) {
 		Font &fr = get_Fonts()["title"];
 		String msg = "You win";
 		fr.render_text(
@@ -396,12 +389,6 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 		bounce = -1.0f;
 	}
 
-	/** collide with other ships **/
-	if (!m_noclip && m_enemy.intersects(m_player.get_body())) {
-		has_collided = true;
-		bounce = -1.0f;
-	}
-
 	/** collide camera with walls **/
 	if (m_map.intersects(m_player.get_camera_body())) {
 		m_player.adjust_camera_offset(Vector3f(-0.4f, 0.0f, 0.0f));
@@ -425,13 +412,13 @@ void Play_State::partial_ship_step(const float &time_step, const Vector3f &veloc
 		m_player.add_prev_velocity(velocity);
 	}
 
-	bool was_crossed = m_finish.crossed();
+	bool was_crossed = m_finish->crossed();
 
-	if (m_finish.intersects(m_player.get_body())) {
+	if (m_finish->intersects(m_player.get_body())) {
 		if (!was_crossed)
 		{
 			/** Play a sound if possible **/
-			m_finish.collide();
+			m_finish->collide();
 		}
 		m_time.pause();
 	}
@@ -449,12 +436,6 @@ void Play_State::partial_ship_pitch(const float &time_step, const float &phi) {
 		colliding->collide();
 		has_collided = true;
 		bounce = -1.2f;
-	}
-
-	//collide with other ships
-	if (!m_noclip && m_enemy.intersects(m_player.get_body())) {
-		has_collided = true;
-		bounce = -1.0f;
 	}
 
 	/** If collision has occurred, play a sound and roll things back **/
@@ -484,12 +465,6 @@ void Play_State::partial_ship_yaw(const float &time_step, const float &theta) {
 		bounce = -1.2f;
 	}
 
-	//collide with other ships
-	if (!m_noclip && m_enemy.intersects(m_player.get_body())) {
-		has_collided = true;
-		bounce = -1.0f;
-	}
-
 	/** If collision has occurred, play a sound and roll things back **/
 	if (has_collided) {
 		if (m_moved) {
@@ -515,12 +490,6 @@ void Play_State::partial_ship_roll(const float &time_step, const float &rho) {
 		colliding->collide();
 		has_collided = true;
 		bounce = -1.2f;
-	}
-
-	//collide with other ships
-	if (!m_noclip && m_enemy.intersects(m_player.get_body())) {
-		has_collided = true;
-		bounce = -1.0f;
 	}
 
 	/** If collision has occurred, play a sound and roll things back **/
